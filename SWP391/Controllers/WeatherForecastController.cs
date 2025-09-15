@@ -8,7 +8,7 @@ namespace SWP391.Controllers
     {
         private static readonly string[] Summaries = new[]
         {
-            "abc", "hihi", "huyhu", "haha"
+            "hehe", "hihi", "huyhu", "haha"
         };
 
         private readonly ILogger<WeatherForecastController> _logger;
