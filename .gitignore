@@ -54,6 +54,3 @@ TestResult.xml
 nunit-*.xml
 
 .vs/
-
-# Entity Framework Migrations
-Migrations/
