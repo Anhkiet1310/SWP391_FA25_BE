@@ -1,4 +1,4 @@
-name: Build & Push Docker Image
+﻿name: Build & Push Docker Image
 
 on:
   push:
@@ -30,12 +30,21 @@ jobs:
       - name: Deploy to Server
         uses: appleboy/ssh-action@v0.1.10
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          password: ${{ secrets.SSH_PASSWORD }}
-          script: |
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        password: ${{ secrets.SSH_PASSWORD }}
+        script: |
+            echo "🔄 Pulling latest image..."
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_IMAGE }}:latest
+
+            echo "🧹 Cleaning up any container using port 8080..."
+            # Find any container currently using port 8080 and remove it
+            docker ps -q --filter "publish=8080" | xargs -r docker stop
+            docker ps -aq --filter "publish=8080" | xargs -r docker rm
+
+            echo "🚀 Starting new container on port 8080..."
             docker stop myapp || true
             docker rm myapp || true
             docker run -d -p 8080:8080 --name myapp ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_IMAGE }}:latest
+
 
