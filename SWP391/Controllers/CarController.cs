@@ -58,5 +58,11 @@ namespace SWP391.Controllers
             if (car == null) return NotFound();
             return Ok(car);
         }
+
+        [HttpGet("test")]
+        public async Task<IActionResult> Test()
+        {
+            return Ok("test");
+        }
     }
 }
