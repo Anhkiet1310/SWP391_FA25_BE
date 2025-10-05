@@ -62,7 +62,7 @@ namespace SWP391.Controllers
         [HttpGet("test")]
         public async Task<IActionResult> Test()
         {
-            return Ok("test 2");
+            return Ok("test 3");
         }
     }
 }
