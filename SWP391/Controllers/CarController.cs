@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Repositories.DBContext;
-using Repositories.DTOs;
+using Repositories.DTOs.Car;
 using Repositories.Entities;
 
 namespace SWP391.Controllers
