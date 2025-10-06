@@ -17,6 +17,7 @@ namespace Repositories.Entities
         public DateTime? Dob { get; set; }
         public string? CCCDFront { get; set; }
         public string? CCCDBack { get; set; }
+        public int Role { get; set; }
         public ICollection<UserGroup> UserGroups { get; set; }
         public ICollection<CarUser> CarUsers { get; set; }
         public ICollection<Vote> Votes { get; set; }
