@@ -74,15 +74,21 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.AddAuthorization();
 
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<UserService>();
 
 var app = builder.Build();
 
+//CORS
+app.UseCors(options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+
+
 // Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())
 //{
-    app.UseSwagger();
+app.UseSwagger();
     app.UseSwaggerUI();
 //}
 

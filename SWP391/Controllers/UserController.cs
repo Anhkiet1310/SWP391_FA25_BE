@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Repositories.DTOs.User;
 using Repositories.Entities;
@@ -21,6 +20,41 @@ namespace SWP391.Controllers
         {
             _userService = userService;
             _config = config;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            try
+            {
+                var users = await _userService.GetAllUsers();
+                return Ok(users);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetUserById(int id)
+        {
+            if (id <= 0)
+            {
+                return BadRequest("Invalid user ID");
+            }
+            try
+            {
+                var user = await _userService.GetUserById(id);
+                if (user == null) 
+                    return NotFound(new {message = "Not found!"});
+
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPost("register")]
@@ -46,13 +80,57 @@ namespace SWP391.Controllers
         {
             if (userLoginDto == null)
             {
-                return BadRequest("User data is required");
+                return BadRequest(new { message = "User data is required." });
             }
             try
             {
                 var user = await _userService.Login(userLoginDto.UserName, userLoginDto.Password);
+                if (user == null)
+                    return Unauthorized(new { message = "Invalid username or password." });
+
                 var token = GenerateToken(user);
                 return Ok(new { Token = token });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateProfile(int id, UserUpdateProfileDto updateProfileDto)
+        {
+            if (id <= 0 || updateProfileDto == null)
+            {
+                return BadRequest(new { message = "Invalid input data" });
+            }
+            try
+            {
+                var updatedProfile = await _userService.UpdateProfile(id, updateProfileDto);
+                if (updatedProfile == null)
+                    return NotFound(new { message = "User not found." });
+
+                return Ok(new { message = "Profile updated successfully", profile = updatedProfile });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteUser(int id)
+        {
+            if (id <= 0)
+            {
+                return BadRequest(new { message = "Invalid user ID" });
+            }
+            try
+            {
+                var result = await _userService.DeleteUser(id);
+                if (!result)
+                    return NotFound(new { message = "User not found." });
+                return Ok(new { message = "User deleted successfully" });
             }
             catch (Exception ex)
             {
