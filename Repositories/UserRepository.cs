@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Repositories.DBContext;
-using Repositories.DTOs.User;
 using Repositories.Entities;
 
 namespace Repositories
@@ -19,6 +18,33 @@ namespace Repositories
             return await _context.Users.FirstOrDefaultAsync(u => u.UserName == username);
         }
 
+        public async Task<User> GetUserById(int userId)
+        {
+            return await _context.Users.FindAsync(userId);
+        }
+
+        public async Task<List<User>> GetAllUsers()
+        {
+            return await _context.Users.ToListAsync();
+        }
+
+        public async Task<User> UpdateProfile(User user)
+        {
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+            return user;
+        }
+
+        public async Task<bool> DeleteUser(User user)
+        {
+            if (user == null)
+                return false;
+
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
         public async Task<User> Register(User user, string password)
         {
             user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(password);
@@ -33,16 +59,6 @@ namespace Repositories
                 Console.WriteLine(ex.InnerException?.Message);
                 throw;
             }
-        }
-
-        public async Task<User> Login(string username, string password)
-        {
-            var user = await GetUserByUsername(username);
-            if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
-            {
-                return null;
-            }
-            return user;
         }
     }
 }
