@@ -3,6 +3,7 @@ using Repositories.DBContext;
 
 namespace Repositories
 {
+
     public class ContractRepository
     {
         private readonly Co_ownershipAndCost_sharingDbContext _context;
