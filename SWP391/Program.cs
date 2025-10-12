@@ -80,11 +80,15 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<ContractRepository>();
 builder.Services.AddScoped<ScheduleRepository>();
+builder.Services.AddScoped<FormRepository>();
+builder.Services.AddScoped<VoteRepository>();
 
 //DI Service
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<ContractService>();
 builder.Services.AddScoped<ScheduleService>();
+builder.Services.AddScoped<FormService>();
+builder.Services.AddScoped<VoteService>();
 
 var app = builder.Build();
 
