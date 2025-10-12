@@ -76,8 +76,15 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+//DI Controller
 builder.Services.AddScoped<UserRepository>();
+builder.Services.AddScoped<ContractRepository>();
+builder.Services.AddScoped<ScheduleRepository>();
+
+//DI Service
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<ContractService>();
+builder.Services.AddScoped<ScheduleService>();
 
 var app = builder.Build();
 
