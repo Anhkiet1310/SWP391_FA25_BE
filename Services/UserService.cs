@@ -53,7 +53,7 @@ namespace Services
             return _mapper.Map<UserResponseDto>(user);
         }
 
-        public async Task<UserRegisterDto> Register(UserRegisterDto userRegisterDto)
+        public async Task<UserResponseDto> Register(UserRegisterDto userRegisterDto)
         {
             var existingUser = await _userRepository.GetUserByUsername(userRegisterDto.UserName);
             if (existingUser != null)
@@ -76,13 +76,7 @@ namespace Services
 
             var user = await _userRepository.Register(userEntity, userRegisterDto.Password);
 
-            return new UserRegisterDto
-            {
-                UserName = user.UserName,
-                Password = user.PasswordHash,
-                Email = user.Email,
-                FullName = user.FullName
-            };
+            return _mapper.Map<UserResponseDto>(user);
         }
 
         public async Task<User> Login(string username, string password)
