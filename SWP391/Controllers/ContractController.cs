@@ -67,7 +67,7 @@ namespace SWP391.Controllers
             }
         }
         [HttpPost]
-        public async Task<IActionResult> CreateContract([FromBody] ContractCreateDto contractCreateDto)
+        public async Task<IActionResult> CreateContract(ContractCreateDto contractCreateDto)
         {
             if (contractCreateDto == null)
             {
@@ -84,7 +84,7 @@ namespace SWP391.Controllers
             }
         }
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateContract(int id, [FromBody] ContractUpdateDto contractUpdateDto)
+        public async Task<IActionResult> UpdateContract(int id, ContractUpdateDto contractUpdateDto)
         {
             if (id <= 0 || contractUpdateDto == null)
             {

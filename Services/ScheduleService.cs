@@ -13,7 +13,6 @@ namespace Services
             _scheduleRepository = scheduleRepository;
             _mapper = mapper;
         }
-        //TODO: Add business logic
 
         public async Task<List<ScheduleDto>> GetAllSchedules()
         {

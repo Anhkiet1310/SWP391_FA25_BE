@@ -82,6 +82,8 @@ builder.Services.AddScoped<ContractRepository>();
 builder.Services.AddScoped<ScheduleRepository>();
 builder.Services.AddScoped<FormRepository>();
 builder.Services.AddScoped<VoteRepository>();
+builder.Services.AddScoped<CarUserRepository>();
+builder.Services.AddScoped<PaymentRepository>();
 
 //DI Service
 builder.Services.AddScoped<UserService>();
@@ -89,6 +91,16 @@ builder.Services.AddScoped<ContractService>();
 builder.Services.AddScoped<ScheduleService>();
 builder.Services.AddScoped<FormService>();
 builder.Services.AddScoped<VoteService>();
+builder.Services.AddScoped<CarUserService>();
+builder.Services.AddScoped<PaymentService>();
+
+//PayPal
+builder.Services.AddScoped<PaymentPayPalRepository>(provider =>
+    new PaymentPayPalRepository(
+        builder.Configuration["PayPal:ClientId"],
+        builder.Configuration["PayPal:Secret"]
+    )
+);
 
 var app = builder.Build();
 

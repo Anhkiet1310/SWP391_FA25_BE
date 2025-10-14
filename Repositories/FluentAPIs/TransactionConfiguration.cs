@@ -15,8 +15,8 @@ namespace Repositories.FluentAPIs
                    .HasForeignKey(t => t.CarUserId);
 
             builder.HasOne(t => t.Payment)
-                   .WithOne(p => p.Transaction)
-                   .HasForeignKey<Payment>(p => p.TransactionId);
+                   .WithMany(p => p.Transactions)
+                   .HasForeignKey(t => t.PaymentId);
         }
     }
 }

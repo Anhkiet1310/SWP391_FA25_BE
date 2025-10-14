@@ -64,7 +64,7 @@ namespace SWP391.Controllers
             }
         }
         [HttpPost]
-        public async Task<IActionResult> CreateSchedule([FromBody] ScheduleCreateDto scheduleCreateDto)
+        public async Task<IActionResult> CreateSchedule(ScheduleCreateDto scheduleCreateDto)
         {
             if (scheduleCreateDto == null)
             {
@@ -81,7 +81,7 @@ namespace SWP391.Controllers
             }
         }
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateSchedule(int id, [FromBody] ScheduleUpdateDto scheduleUpdateDto)
+        public async Task<IActionResult> UpdateSchedule(int id, ScheduleUpdateDto scheduleUpdateDto)
         {
             if (id <= 0 || scheduleUpdateDto == null)
             {
