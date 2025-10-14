@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Repositories.DBContext;
 using Repositories.DTOs.CarUser;
 using Repositories.Entities;
+using Services;
 
 namespace SWP391.Controllers
 {
@@ -12,10 +13,33 @@ namespace SWP391.Controllers
     public class CarUserController : ControllerBase
     {
         private readonly Co_ownershipAndCost_sharingDbContext _context;
+        private readonly CarUserService _carUserService;
 
-        public CarUserController(Co_ownershipAndCost_sharingDbContext context)
+        public CarUserController(Co_ownershipAndCost_sharingDbContext context, CarUserService carUserService)
         {
             _context = context;
+            _carUserService = carUserService;
+        }
+
+
+        [HttpGet("{userId}")]
+        public async Task<IActionResult> GetCarUserByUserId(int userId)
+        {
+            if (userId <= 0)
+            {
+                return BadRequest("Invalid user ID");
+            }
+            try
+            {
+                var carUser = await _carUserService.GetCarUserByUserId(userId);
+                if (carUser == null)
+                    return NotFound(new { message = "Not found!" });
+                return Ok(carUser);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         // ✅ POST: /api/cars/{carId}/users/{userId}/add

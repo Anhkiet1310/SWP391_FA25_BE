@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Repositories.DBContext;
+using Repositories.Entities;
 
 namespace Repositories
 {
@@ -12,15 +13,18 @@ namespace Repositories
         {
             _context = context;
         }
-        public async Task<List<Entities.Contract>> GetAllContracts()
+
+        public async Task<List<Contract>> GetAllContracts()
         {
             return await _context.Contracts.Where(c => c.DeleteAt == null).ToListAsync();
         }
-        public async Task<Entities.Contract?> GetContractById(int contractId)
+
+        public async Task<Contract?> GetContractById(int contractId)
         {
             return await _context.Contracts.FirstOrDefaultAsync(c => c.ContractId == contractId && c.DeleteAt == null);
         }
-        public async Task<List<Entities.Contract>> GetContractsByUserId(int userId)
+
+        public async Task<List<Contract>> GetContractsByUserId(int userId)
         {
             var contracts = await (from c in _context.Contracts
                                    join cu in _context.CarUsers on c.CarUserId equals cu.CarUserId
@@ -30,13 +34,15 @@ namespace Repositories
 
             return contracts;
         }
-        public async Task<Entities.Contract> CreateContract(Entities.Contract contract)
+
+        public async Task<Contract> CreateContract(Contract contract)
         {
             _context.Contracts.Add(contract);
             await _context.SaveChangesAsync();
             return contract;
         }
-        public async Task<Entities.Contract> UpdateContract(Entities.Contract contract)
+
+        public async Task<Contract> UpdateContract(Contract contract)
         {
             _context.Contracts.Update(contract);
             await _context.SaveChangesAsync();
