@@ -15,7 +15,7 @@ jobs:
       - name: Overwrite appsettings.json from secrets
         run: |
           echo "📝 Overwriting appsettings.json from secrets..."
-          echo "${{ secrets.APPSETTINGS_JSON }}" > ../SWP391/appsettings.json
+          echo "${{ secrets.APPSETTINGS_JSON }}" > ../workflows/SWP391/appsettings.json
           echo "✅ appsettings.json overwritten successfully!"
 
       - name: Set up Docker Buildx
