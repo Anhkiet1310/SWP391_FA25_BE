@@ -12,6 +12,12 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
+      - name: Overwrite appsettings.json from secrets
+        run: |
+          echo "📝 Overwriting appsettings.json from secrets..."
+          echo "${{ secrets.APPSETTINGS_JSON }}" > ./appsettings.json
+          echo "✅ appsettings.json overwritten successfully!"
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
