@@ -67,7 +67,16 @@ namespace SWP391.Controllers
             try
             {
                 var registeredUser = await _userService.Register(userRegisterDto);
-                return Ok(registeredUser);
+                if (!registeredUser.Success)
+                {
+                    return BadRequest(new { message = registeredUser.Message });
+                }
+
+                return Ok(new
+                {
+                    success = registeredUser.Success,
+                    data = registeredUser.Data
+                });
             }
             catch (Exception ex)
             {
@@ -89,7 +98,7 @@ namespace SWP391.Controllers
                     return Unauthorized(new { message = "Invalid username or password." });
 
                 var token = GenerateToken(user);
-                return Ok(new { Token = token });
+                return Ok(new { Token = token, IsRole = user.Role });
             }
             catch (Exception ex)
             {
@@ -107,10 +116,13 @@ namespace SWP391.Controllers
             try
             {
                 var updatedProfile = await _userService.UpdateProfile(id, updateProfileDto);
-                if (updatedProfile == null)
-                    return NotFound(new { message = "User not found." });
+                if (!updatedProfile.Success)
+                    return NotFound(new { message = updatedProfile.Message });
 
-                return Ok(new { message = "Profile updated successfully", profile = updatedProfile });
+                return Ok(new 
+                { 
+                    success = updatedProfile.Success, data = updatedProfile.Data 
+                });
             }
             catch (Exception ex)
             {
@@ -145,7 +157,8 @@ namespace SWP391.Controllers
             var claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-                new Claim(ClaimTypes.Email, user.Email)
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Role, user.Role.ToString())
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]));
