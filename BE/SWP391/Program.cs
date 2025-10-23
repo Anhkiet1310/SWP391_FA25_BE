@@ -93,6 +93,8 @@ builder.Services.AddScoped<FormService>();
 builder.Services.AddScoped<VoteService>();
 builder.Services.AddScoped<CarUserService>();
 builder.Services.AddScoped<PaymentService>();
+builder.Services.AddScoped<OcrService>();
+builder.Services.AddHttpClient<OcrService>();
 
 //PayPal
 builder.Services.AddScoped<PaymentPayPalRepository>(provider =>
