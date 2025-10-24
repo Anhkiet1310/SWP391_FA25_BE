@@ -36,11 +36,12 @@ namespace Services
                     Message = "User not found"
                 };
 
-            if (IsValidEmail(updateProfileDto.Email) != null)
+            var result = await IsValidEmail(updateProfileDto.Email);
+            if (result != null)
                 return new ServiceResult<UserUpdateProfileDto>
                 {
                     Success = false,
-                    Message = IsValidEmail(updateProfileDto.Email)
+                    Message = result
                 };
 
             _mapper.Map(updateProfileDto, user);
@@ -70,29 +71,21 @@ namespace Services
 
         public async Task<ServiceResult<UserResponseDto>> Register(UserRegisterDto userRegisterDto)
         {
-            if (IsValidUserName(userRegisterDto.UserName) != null)
+            var resultUserName = await IsValidUserName(userRegisterDto.UserName);
+            if (resultUserName != null)
                 return new ServiceResult<UserResponseDto>
                 {
                     Success = false,
-                    Message = IsValidUserName(userRegisterDto.UserName)
+                    Message = resultUserName
                 };
 
-            if (IsValidEmail(userRegisterDto.Email) != null)
+            var resultEmail = await IsValidEmail(userRegisterDto.Email);
+            if (resultEmail != null)
                 return new ServiceResult<UserResponseDto>
                 {
                     Success = false,
-                    Message = IsValidEmail(userRegisterDto.Email)
+                    Message = resultEmail
                 };
-
-            var existingUser = await _userRepository.GetUserByUsername(userRegisterDto.UserName);
-            if (existingUser != null)
-            {
-                return new ServiceResult<UserResponseDto>
-                {
-                    Success = false,
-                    Message = "Username already exists"
-                };
-            }
 
             var userEntity = new User
             {
@@ -123,7 +116,7 @@ namespace Services
             return user;
         }
 
-        private string? IsValidEmail(string? email)
+        private async Task<string?> IsValidEmail(string? email)
         {
             if (string.IsNullOrEmpty(email)) 
                 return "Email are required";
@@ -132,10 +125,14 @@ namespace Services
             if (!Regex.IsMatch(email, pattern, RegexOptions.IgnoreCase))
                 return "Invalid email format";
 
+            var existingEmail = await _userRepository.GetUserByEmail(email);
+            if (existingEmail != null)
+                return "Email already exists";
+
             return null;
         }
 
-        private string? IsValidUserName(string userName)
+        private async Task<string?> IsValidUserName(string userName)
         {
             if (string.IsNullOrWhiteSpace(userName))
                 return "Username are required";
@@ -148,6 +145,10 @@ namespace Services
             string pattern = @"^[a-zA-Z0-9]+$";
             if (!Regex.IsMatch(userName, pattern))
                 return "Username must be alphanumeric without spaces or special characters";
+
+            var existingUser = await _userRepository.GetUserByUsername(userName);
+            if (existingUser != null)
+                return "Username already exists";
 
             return null;
         }
