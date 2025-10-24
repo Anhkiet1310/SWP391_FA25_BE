@@ -18,6 +18,11 @@ namespace Repositories
             return await _context.Users.FirstOrDefaultAsync(u => u.UserName == username);
         }
 
+        public async Task<User> GetUserByEmail(string email)
+        {
+            return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+        }
+
         public async Task<User> GetUserById(int userId)
         {
             return await _context.Users.FindAsync(userId);
