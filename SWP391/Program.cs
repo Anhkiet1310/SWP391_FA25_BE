@@ -79,6 +79,7 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 //DI Controller
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<CarRepository>();
+builder.Services.AddScoped<GroupRepository>();
 builder.Services.AddScoped<ContractRepository>();
 builder.Services.AddScoped<ScheduleRepository>();
 builder.Services.AddScoped<FormRepository>();
@@ -89,6 +90,7 @@ builder.Services.AddScoped<PaymentRepository>();
 //DI Service
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<CarService>();
+builder.Services.AddScoped<GroupService>();
 builder.Services.AddScoped<ContractService>();
 builder.Services.AddScoped<ScheduleService>();
 builder.Services.AddScoped<FormService>();
