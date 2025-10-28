@@ -42,6 +42,54 @@ namespace SWP391.Controllers
             }
         }
 
+        //// ✅ GET: /api/cars/{carId}/users - Lấy danh sách người dùng của một chiếc xe
+        //[HttpGet("/api/cars/{carId}/users")]
+        //public async Task<IActionResult> GetUsersByCarId(int carId)
+        //{
+        //    var carUsers = await _context.CarUsers
+        //        .Include(cu => cu.User)  // Bao gồm thông tin người dùng
+        //        .Where(cu => cu.CarId == carId && cu.DeleteAt == null) // Kiểm tra mối quan hệ chưa bị xóa
+        //        .Select(cu => new CarUserDto
+        //        {
+        //            CarUserId = cu.CarUserId,
+        //            CarId = cu.CarId,
+        //            CarName = cu.Car.CarName,
+        //            UserId = cu.UserId,
+        //            UserFullName = cu.User.FullName,
+        //            OwnershipPercentage = cu.PercentOwnership?.Percentage,
+        //            CreatedAt = cu.CreatedAt
+        //        })
+        //        .ToListAsync();
+
+        //    if (!carUsers.Any()) return NotFound($"No users found for Car {carId}.");
+
+        //    return Ok(carUsers);
+        //}
+
+        // ✅ GET: /api/users/{userId}/cars - Lấy danh sách xe mà người dùng sở hữu hoặc sử dụng
+        [HttpGet("/api/users/{userId}/cars")]
+        public async Task<IActionResult> GetCarsByUserId(int userId)
+        {
+            var carUsers = await _context.CarUsers
+                .Include(cu => cu.Car)  // Bao gồm thông tin xe
+                .Where(cu => cu.UserId == userId && cu.DeleteAt == null)  // Kiểm tra mối quan hệ chưa bị xóa
+                .Select(cu => new
+                {
+                    CarUserId = cu.CarUserId,
+                    CarId = cu.CarId,
+                    CarName = cu.Car.CarName,
+                    PlateNumber = cu.Car.PlateNumber,
+                    Status = cu.Car.Status,
+                    BatteryCapacity = cu.Car.BatteryCapacity,
+                    CreatedAt = cu.CreatedAt
+                })
+                .ToListAsync();
+
+            if (!carUsers.Any()) return NotFound($"No cars found for User {userId}.");
+
+            return Ok(carUsers);
+        }
+
         // ✅ POST: /api/cars/{carId}/users/{userId}/add
         [HttpPost("/api/cars/{carId}/users/{userId}/add")]
         public async Task<IActionResult> AddUserToCar(int carId, int userId)
