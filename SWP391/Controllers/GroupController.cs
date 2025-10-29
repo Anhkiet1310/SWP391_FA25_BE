@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Repositories.DBContext;
 using Repositories.DTOs.Group;
 using Repositories.Entities;
+using Services;
 
 namespace SWP391.Controllers
 {
@@ -11,20 +12,18 @@ namespace SWP391.Controllers
     [ApiController]
     public class GroupController : ControllerBase
     {
-        private readonly Co_ownershipAndCost_sharingDbContext _context;
+        private readonly GroupService _groupService;
 
-        public GroupController(Co_ownershipAndCost_sharingDbContext context)
+        public GroupController(GroupService groupService)
         {
-            _context = context;
+            _groupService = groupService;
         }
 
         // ✅ GET: api/group
         [HttpGet]
         public async Task<IActionResult> GetAllGroups()
         {
-            var groups = await _context.Groups.Include(g => g.Car)// lấy thông tin xe liên kết (nếu cần)
-                .ToListAsync();
-
+            var groups = await _groupService.GetAllGroupsAsync();
             return Ok(groups);
         }
 
@@ -32,82 +31,52 @@ namespace SWP391.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetGroupById(int id)
         {
-            var group = await _context.Groups
-                .Include(g => g.Car)
-                .FirstOrDefaultAsync(g => g.GroupId == id);
-
+            var group = await _groupService.GetGroupByIdAsync(id);
             if (group == null)
                 return NotFound($"Group with id {id} not found");
 
             return Ok(group);
         }
 
+        // ✅ POST: api/group
         [HttpPost]
         public async Task<IActionResult> CreateGroup([FromBody] GroupCreateDto dto)
         {
-            if (dto == null)
-                return BadRequest("Group data is required");
-
-            // Kiểm tra xe tồn tại
-            var car = await _context.Cars.FindAsync(dto.CarId);
-            if (car == null)
-                return BadRequest($"Car with id {dto.CarId} does not exist");
-
-            // ⚠️ Kiểm tra trùng (CarId đã có nhóm chưa)
-            var existingGroup = await _context.Groups
-                .FirstOrDefaultAsync(g => g.CarId == dto.CarId && g.DeleteAt == null);
-
-            if (existingGroup != null)
-                return Conflict($"Car with id {dto.CarId} already has a group '{existingGroup.GroupName}'.");
-
-            var group = new Group
+            try
             {
-                CarId = dto.CarId,
-                GroupName = dto.GroupName,
-                GroupImg = dto.GroupImg,
-                CreatedAt = DateTime.UtcNow
-            };
-
-            _context.Groups.Add(group);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetGroupById), new { id = group.GroupId }, group);
+                var group = await _groupService.CreateGroupAsync(dto);
+                return CreatedAtAction(nameof(GetGroupById), new { id = group.GroupId }, group);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message); // Nếu có lỗi (vd: xe đã có nhóm)
+            }
         }
 
         // ✅ PUT: api/group/{id}/update
         [HttpPut("{id}/update")]
         public async Task<IActionResult> UpdateGroup(int id, [FromBody] GroupUpdateDto dto)
         {
-            var group = await _context.Groups.FindAsync(id);
-            if (group == null)
-                return NotFound($"Group with id {id} not found");
-
-            group.GroupName = dto.GroupName ?? group.GroupName;
-            group.GroupImg = dto.GroupImg ?? group.GroupImg;
-            group.UpdatedAt = DateTime.UtcNow;
-
-            _context.Groups.Update(group);
-            await _context.SaveChangesAsync();
-
-            return Ok(group);
+            try
+            {
+                var group = await _groupService.UpdateGroupAsync(id, dto);
+                return Ok(group);
+            }
+            catch (Exception ex)
+            {
+                return NotFound(ex.Message); // Nếu không tìm thấy group hoặc lỗi khác
+            }
         }
 
         // ✅ DELETE: api/group/{id}/delete
         [HttpDelete("{id}/delete")]
         public async Task<IActionResult> DeleteGroup(int id)
         {
-            var group = await _context.Groups.FindAsync(id);
-            if (group == null)
+            var result = await _groupService.DeleteGroupAsync(id);
+            if (!result)
                 return NotFound($"Group with id {id} not found");
-
-            // Soft delete
-            group.DeleteAt = DateTime.UtcNow;
-            _context.Groups.Update(group);
-
-            await _context.SaveChangesAsync();
 
             return Ok($"Group with id {id} has been deleted");
         }
     }
-
 }
