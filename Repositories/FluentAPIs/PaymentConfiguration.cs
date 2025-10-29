@@ -15,7 +15,7 @@ namespace Repositories.FluentAPIs
                    .HasForeignKey(t => t.PaymentId);
 
             builder.Property(p => p.Status)
-                   .HasConversion<int>();
+                   .HasConversion<string>();
         }
     }
 }

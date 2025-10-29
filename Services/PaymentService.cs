@@ -1,7 +1,9 @@
-﻿using Repositories;
+﻿using PayPalCheckoutSdk.Orders;
+using Repositories;
 using Repositories.DTOs.Payment;
 using Repositories.Entities;
 using Repositories.Enum;
+using Services.Utils;
 
 namespace Services
 {
@@ -10,63 +12,161 @@ namespace Services
         private readonly PaymentPayPalRepository _paymentPayPalRepository;
         private readonly PaymentRepository _paymentRepository;
         private readonly CarUserRepository _carUserRepository;
+        private readonly UserRepository _userRepository;
+        private readonly TransactionRepository _transactionRepository;
 
-        public PaymentService(PaymentPayPalRepository paymentPayPalRepository, PaymentRepository paymentRepository, CarUserRepository carUserRepository)
+        public PaymentService(PaymentPayPalRepository paymentPayPalRepository, PaymentRepository paymentRepository, CarUserRepository carUserRepository, UserRepository userRepository, TransactionRepository transactionRepository)
         {
             _paymentPayPalRepository = paymentPayPalRepository;
             _paymentRepository = paymentRepository;
             _carUserRepository = carUserRepository;
+            _userRepository = userRepository;
+            _transactionRepository = transactionRepository;
         }
 
-        public async Task<PaymentResponseDto> CreatePayment(PaymentRequestDto paymentRequest)
+        public async Task<ServiceResult<PaymentResponseDto>> CreatePayment(PaymentRequestDto paymentRequest)
         {
-            var payment = await _paymentPayPalRepository.CreatePayment(paymentRequest);
+            var payPalResponse = await _paymentPayPalRepository.CreatePayment(paymentRequest);
+            var carUser = await _carUserRepository.GetCarUserByUserId(paymentRequest.UserId);
+            if (carUser == null)
+                return new ServiceResult<PaymentResponseDto>
+                {
+                    Success = false,
+                    Message = "Caruser not found."
+                };
 
-            var newPayment = new Payment
+            var payment = new Payment
             {
+                CarUserId = carUser.CarUserId,
                 PaymentMethod = "PayPal",
-                Status = PaymentStatus.Pending,
-                OrderId = payment.OrderId,
+                Status = Status.Pending,
+                OrderId = payPalResponse.OrderId,
                 Amount = paymentRequest.Amount,
                 Currency = paymentRequest.Currency,
                 Description = paymentRequest.Description,
                 CreatedAt = DateTime.UtcNow
             };
+            await _paymentRepository.AddPayment(payment);
 
-            await _paymentRepository.AddPayment(newPayment);
-            return payment;
+            var transaction = new Transaction
+            {
+                CarUserId = carUser.CarUserId,
+                Amount = paymentRequest.Amount,
+                TransactionType = paymentRequest.TransactionType,
+                Status = Status.Pending,
+                OrderId = payPalResponse.OrderId,
+                CreatedAt = DateTime.UtcNow
+            };
+            await _transactionRepository.AddTransaction(transaction);
+
+            return new ServiceResult<PaymentResponseDto>
+            {
+                Success = true,
+                Data = payPalResponse
+            };
         }
 
         public async Task<string> CapturePayment(string orderId, int userId)
         {
             var status = await _paymentPayPalRepository.CapturePayment(orderId);
+            var transaction = await _transactionRepository.GetTransactionByOrderId(orderId);
             var payment = await _paymentRepository.GetPaymentByOrderId(orderId);
-            var carUser = await _carUserRepository.GetCarUserByUserId(userId);
+
+            if (transaction == null)
+                throw new Exception("Transaction  not found.");
 
             if (payment == null)
-                throw new Exception("Payment not found");
+                throw new Exception("Payment not found.");
 
             if (status == "COMPLETED")
             {
-                payment.Status = PaymentStatus.Completed;
+                transaction.Status = Status.Completed;
+                payment.Status = Status.Completed;
+                await _transactionRepository.UpdateTransaction(transaction);
                 await _paymentRepository.UpdatePayment(payment);
 
-                var transaction = new Transaction
+                if (transaction.TransactionType == TransactionType.Deposit)
                 {
-                    PaymentId = payment.PaymentId,
-                    CarUserId = carUser.CarUserId,
-                    Amount = payment.Amount,
-                    TransactionType = "Balance",
-                    CreatedAt = DateTime.UtcNow
-                };
-                await _paymentRepository.AddTransaction(transaction);
+                    var user = await _userRepository.GetUserById(userId);
+                    user.Balance += transaction.Amount;
+                    await _userRepository.UpdateProfile(user);
+                }
             }
             else
             {
-                payment.Status = PaymentStatus.Failed;
-                await _paymentRepository.UpdatePayment(payment);
+                transaction.Status = Status.Failed;
+                await _transactionRepository.UpdateTransaction(transaction);
             }
             return status;
+        }
+
+        public async Task<ServiceResult<bool>> PayWithWallet(PaymentWalletRequestDto paymentWalletRequestDto)
+        {
+            var carUser = await _carUserRepository.GetCarUserByUserId(paymentWalletRequestDto.UserId);
+            if (carUser == null)
+                return new ServiceResult<bool>
+                {
+                    Success = false,
+                    Message = "CarUser not found."
+                };
+
+            var user = await _userRepository.GetUserById(carUser.UserId);
+            if (user.Balance < paymentWalletRequestDto.Amount)
+                return new ServiceResult<bool>
+                {
+                    Success = false,
+                    Message = "Insufficient balance."
+                };
+
+            try
+            {
+                var orderId = $"{DateTime.UtcNow:yyyyMMddHHmmssfff}-{paymentWalletRequestDto.UserId}";
+                var payment = new Payment
+                {
+                    PaymentMethod = "Wallet",
+                    Status = Status.Completed,
+                    OrderId = orderId,
+                    CarUserId = carUser.CarUserId,
+                    Amount = paymentWalletRequestDto.Amount,
+                    Currency = "USD",
+                    Description = paymentWalletRequestDto.Description,
+                    CreatedAt = DateTime.UtcNow
+                };
+                await _paymentRepository.AddPayment(payment);
+
+                var transaction = new Transaction
+                {
+                    OrderId = orderId,
+                    PaymentId = payment.PaymentId,
+                    CarUserId = carUser.CarUserId,
+                    Amount = paymentWalletRequestDto.Amount,
+                    TransactionType = TransactionType.Purchase,
+                    Status = Status.Completed,
+                    CreatedAt = DateTime.UtcNow
+                };
+                await _transactionRepository.AddTransaction(transaction);
+
+                user.Balance -= paymentWalletRequestDto.Amount;
+                await _userRepository.UpdateProfile(user);
+
+                return new ServiceResult<bool>
+                {
+                    Success = true,
+                    Message = "Payment successful using wallet.",
+                    Data = true
+                };
+            }
+            catch (Exception ex)
+            {
+                user.Balance += paymentWalletRequestDto.Amount;
+                await _userRepository.UpdateProfile(user);
+
+                return new ServiceResult<bool>
+                {
+                    Success = false,
+                    Message = $"Payment failed: {ex.Message}"
+                };
+            }
         }
     }
 }

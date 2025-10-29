@@ -22,22 +22,13 @@ namespace Repositories
 
         public async Task<Payment?> GetPaymentByOrderId(string orderId)
         {
-            return await _context.Payments
-                         .Include(p => p.Transactions)
-                         .FirstOrDefaultAsync(p => p.OrderId == orderId);
+            return await _context.Payments.FirstOrDefaultAsync(p => p.OrderId == orderId);
         }
 
         public async Task UpdatePayment(Payment payment)
         {
             _context.Payments.Update(payment);
             await _context.SaveChangesAsync();
-        }
-
-        public async Task<Transaction> AddTransaction(Transaction transaction)
-        {
-            _context.Transactions.Add(transaction);
-            await _context.SaveChangesAsync();
-            return transaction;
         }
     }
 }
