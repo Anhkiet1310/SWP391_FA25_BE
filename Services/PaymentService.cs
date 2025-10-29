@@ -66,17 +66,25 @@ namespace Services
             };
         }
 
-        public async Task<string> CapturePayment(string orderId, int userId)
+        public async Task<ServiceResult<string>> CapturePayment(string orderId, int userId)
         {
             var status = await _paymentPayPalRepository.CapturePayment(orderId);
             var transaction = await _transactionRepository.GetTransactionByOrderId(orderId);
             var payment = await _paymentRepository.GetPaymentByOrderId(orderId);
 
             if (transaction == null)
-                throw new Exception("Transaction  not found.");
+                return new ServiceResult<string>
+                {
+                    Success = false,
+                    Message = "Transaction not found."
+                };
 
             if (payment == null)
-                throw new Exception("Payment not found.");
+                return new ServiceResult<string>
+                {
+                    Success = false,
+                    Message = "Payment not found."
+                };
 
             if (status == "COMPLETED")
             {
@@ -97,7 +105,11 @@ namespace Services
                 transaction.Status = Status.Failed;
                 await _transactionRepository.UpdateTransaction(transaction);
             }
-            return status;
+            return new ServiceResult<string>
+            {
+                Success = true,
+                Data = status
+            };
         }
 
         public async Task<ServiceResult<bool>> PayWithWallet(PaymentWalletRequestDto paymentWalletRequestDto)

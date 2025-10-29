@@ -55,7 +55,19 @@ namespace SWP391.Controllers
             try
             {
                 var paymentResponse = await _paymentService.CreatePayment(paymentRequest);
-                return Ok(paymentResponse);
+                if (paymentResponse.Success == false)
+                {
+                    return BadRequest(new
+                    {
+                        success = paymentResponse.Success,
+                        message = paymentResponse.Message
+                    });
+                }
+                return Ok(new
+                {
+                    success = paymentResponse.Success,
+                    data = paymentResponse.Data
+                });
             }
             catch (Exception ex)
             {
@@ -73,7 +85,18 @@ namespace SWP391.Controllers
             try
             {
                 var captureResult = await _paymentService.CapturePayment(orderId, userId);
-                return Ok(new {message = "Payment successful!", Status = captureResult });
+                if (captureResult.Success == false)
+                    return BadRequest(new
+                    {
+                        success = captureResult.Success,
+                        message = captureResult.Message
+                    });
+                return Ok(new 
+                {
+                    success = captureResult.Success,
+                    message = "Payment successful!", 
+                    Status = captureResult.Data 
+                });
             }
             catch (Exception ex)
             {
@@ -91,10 +114,17 @@ namespace SWP391.Controllers
             try
             {
                 var paymentResponse = await _paymentService.PayWithWallet(paymentRequest);
+                if (paymentResponse.Success == false)
+                {
+                    return BadRequest(new
+                    {
+                        success = paymentResponse.Success,
+                        message = paymentResponse.Message
+                    });
+                }
                 return Ok(new 
                 { 
                     success = paymentResponse.Success,
-                    message = paymentResponse.Message,
                     data = paymentResponse.Data
                 });
             }
