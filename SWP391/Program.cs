@@ -86,6 +86,7 @@ builder.Services.AddScoped<FormRepository>();
 builder.Services.AddScoped<VoteRepository>();
 builder.Services.AddScoped<CarUserRepository>();
 builder.Services.AddScoped<PaymentRepository>();
+builder.Services.AddScoped<TransactionRepository>();
 
 //DI Service
 builder.Services.AddScoped<UserService>();
@@ -99,6 +100,7 @@ builder.Services.AddScoped<CarUserService>();
 builder.Services.AddScoped<PaymentService>();
 builder.Services.AddScoped<OcrService>();
 builder.Services.AddHttpClient<OcrService>();
+builder.Services.AddScoped<TransactionService>();
 
 //PayPal
 builder.Services.AddScoped<PaymentPayPalRepository>(provider =>

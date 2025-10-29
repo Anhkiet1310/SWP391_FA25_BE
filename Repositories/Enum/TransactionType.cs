@@ -6,11 +6,12 @@ using System.Threading.Tasks;
 
 namespace Repositories.Enum
 {
-    public enum PaymentStatus
+    public enum TransactionType
     {
-        Pending = 0,
-        Completed = 1,
-        Failed = 2,
-        Canceled = 3
+        Deposit = 0,
+        Withdrawal = 1,
+        Purchase = 2,
+        Refund = 3,
+        Transfer = 4
     }
 }

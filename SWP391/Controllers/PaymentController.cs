@@ -15,8 +15,38 @@ namespace SWP391.Controllers
             _paymentService = paymentService;
         }
 
-        [HttpPost("create")]
-        public async Task<IActionResult> CreatePayment(PaymentRequestDto paymentRequest)
+        [HttpPost("deposit")]
+        public async Task<IActionResult> CreateDeposit(PaymentRequestDto paymentRequest)
+        {
+            if (paymentRequest == null || paymentRequest.Amount <= 0 || string.IsNullOrEmpty(paymentRequest.Currency))
+            {
+                return BadRequest("Invalid payment request");
+            }
+            try
+            {
+                var paymentResponse = await _paymentService.CreatePayment(paymentRequest);
+                if (paymentResponse.Success == false)
+                {
+                    return BadRequest(new
+                    {
+                        success = paymentResponse.Success,
+                        message = paymentResponse.Message
+                    });
+                }
+                return Ok(new
+                {
+                    success = paymentResponse.Success,
+                    data = paymentResponse.Data
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("paypal")]
+        public async Task<IActionResult> CreatePaypal(PaymentRequestDto paymentRequest)
         {
             if (paymentRequest == null || paymentRequest.Amount <= 0 || string.IsNullOrEmpty(paymentRequest.Currency))
             {
@@ -32,6 +62,7 @@ namespace SWP391.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
         [HttpPost("capture/{orderId}")]
         public async Task<IActionResult> CapturePayment(string orderId, int userId)
         {
@@ -43,6 +74,29 @@ namespace SWP391.Controllers
             {
                 var captureResult = await _paymentService.CapturePayment(orderId, userId);
                 return Ok(new {message = "Payment successful!", Status = captureResult });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("wallet")]
+        public async Task<IActionResult> PayFromWallet(PaymentWalletRequestDto paymentRequest)
+        {
+            if (paymentRequest == null || paymentRequest.Amount <= 0)
+            {
+                return BadRequest("Invalid payment request");
+            }
+            try
+            {
+                var paymentResponse = await _paymentService.PayWithWallet(paymentRequest);
+                return Ok(new 
+                { 
+                    success = paymentResponse.Success,
+                    message = paymentResponse.Message,
+                    data = paymentResponse.Data
+                });
             }
             catch (Exception ex)
             {

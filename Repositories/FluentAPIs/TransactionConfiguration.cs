@@ -17,6 +17,12 @@ namespace Repositories.FluentAPIs
             builder.HasOne(t => t.Payment)
                    .WithMany(p => p.Transactions)
                    .HasForeignKey(t => t.PaymentId);
+
+            builder.Property(t => t.TransactionType)
+                   .HasConversion<string>();
+
+            builder.Property(t => t.Status)
+                   .HasConversion<string>();
         }
     }
 }

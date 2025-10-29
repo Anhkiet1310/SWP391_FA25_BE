@@ -36,8 +36,8 @@ namespace Repositories
                 },
                 ApplicationContext = new ApplicationContext
                 {
-                    ReturnUrl = "https://example.com/return",
-                    CancelUrl = "https://example.com/cancel"
+                    ReturnUrl = paymentRequest.ReturnUrl,
+                    CancelUrl = paymentRequest.CancelUrl
                 }
             };
 

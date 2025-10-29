@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Repositories.DBContext;
 
@@ -11,9 +12,11 @@ using Repositories.DBContext;
 namespace Repositories.Migrations
 {
     [DbContext(typeof(Co_ownershipAndCost_sharingDbContext))]
-    partial class Co_ownershipAndCost_sharingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251028031809_fixUser")]
+    partial class fixUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -258,11 +261,8 @@ namespace Repositories.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("PaymentId"));
 
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(65,30)");
-
-                    b.Property<int?>("CarUserId")
-                        .HasColumnType("int");
+                    b.Property<double>("Amount")
+                        .HasColumnType("double");
 
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime(6)");
@@ -286,16 +286,13 @@ namespace Repositories.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime(6)");
 
                     b.HasKey("PaymentId");
-
-                    b.HasIndex("CarUserId");
 
                     b.ToTable("Payments");
                 });
@@ -378,8 +375,8 @@ namespace Repositories.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("TransactionId"));
 
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(65,30)");
+                    b.Property<double>("Amount")
+                        .HasColumnType("double");
 
                     b.Property<int>("CarUserId")
                         .HasColumnType("int");
@@ -390,16 +387,8 @@ namespace Repositories.Migrations
                     b.Property<DateTime?>("DeleteAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<string>("OrderId")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<int?>("PaymentId")
+                    b.Property<int>("PaymentId")
                         .HasColumnType("int");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("longtext");
 
                     b.Property<string>("TransactionType")
                         .IsRequired()
@@ -599,15 +588,6 @@ namespace Repositories.Migrations
                     b.Navigation("Car");
                 });
 
-            modelBuilder.Entity("Repositories.Entities.Payment", b =>
-                {
-                    b.HasOne("Repositories.Entities.CarUser", "CarUser")
-                        .WithMany()
-                        .HasForeignKey("CarUserId");
-
-                    b.Navigation("CarUser");
-                });
-
             modelBuilder.Entity("Repositories.Entities.PercentOwnership", b =>
                 {
                     b.HasOne("Repositories.Entities.CarUser", "CarUser")
@@ -640,7 +620,9 @@ namespace Repositories.Migrations
 
                     b.HasOne("Repositories.Entities.Payment", "Payment")
                         .WithMany("Transactions")
-                        .HasForeignKey("PaymentId");
+                        .HasForeignKey("PaymentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("CarUser");
 
