@@ -22,25 +22,25 @@ namespace SWP391.Controllers
         }
 
 
-        [HttpGet("{userId}")]
-        public async Task<IActionResult> GetCarUserByUserId(int userId)
-        {
-            if (userId <= 0)
-            {
-                return BadRequest("Invalid user ID");
-            }
-            try
-            {
-                var carUser = await _carUserService.GetCarUserByUserId(userId);
-                if (carUser == null)
-                    return NotFound(new { message = "Not found!" });
-                return Ok(carUser);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
+        //[HttpGet("{userId}")]
+        //public async Task<IActionResult> GetCarUserByUserId(int userId)
+        //{
+        //    if (userId <= 0)
+        //    {
+        //        return BadRequest("Invalid user ID");
+        //    }
+        //    try
+        //    {
+        //        var carUser = await _carUserService.GetCarUserByUserId(userId);
+        //        if (carUser == null)
+        //            return NotFound(new { message = "Not found!" });
+        //        return Ok(carUser);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(ex.Message);
+        //    }
+        //}
 
         //// ✅ GET: /api/cars/{carId}/users - Lấy danh sách người dùng của một chiếc xe
         //[HttpGet("/api/cars/{carId}/users")]
