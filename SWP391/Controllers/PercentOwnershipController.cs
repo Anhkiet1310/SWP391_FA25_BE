@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Services;
-using Repositories.DTOs.PercentOwnership;
 using Repositories.Entities;
+using Repositories.DTOs.PercentOwnership;
 
 namespace SWP391.Controllers
 {
