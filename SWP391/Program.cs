@@ -87,6 +87,7 @@ builder.Services.AddScoped<VoteRepository>();
 builder.Services.AddScoped<CarUserRepository>();
 builder.Services.AddScoped<PaymentRepository>();
 builder.Services.AddScoped<TransactionRepository>();
+builder.Services.AddScoped<PercentOwnershipRepository>();
 
 //DI Service
 builder.Services.AddScoped<UserService>();
@@ -101,6 +102,7 @@ builder.Services.AddScoped<PaymentService>();
 builder.Services.AddScoped<OcrService>();
 builder.Services.AddHttpClient<OcrService>();
 builder.Services.AddScoped<TransactionService>();
+builder.Services.AddScoped<PercentOwnershipService>();
 
 //PayPal
 builder.Services.AddScoped<PaymentPayPalRepository>(provider =>
