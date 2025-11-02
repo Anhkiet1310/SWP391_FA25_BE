@@ -42,8 +42,11 @@ namespace Repositories
 
         public async Task DeleteAsync(Group group)
         {
-            group.DeleteAt = DateTime.UtcNow; // Soft delete
-            _context.Groups.Update(group);
+            //group.DeleteAt = DateTime.UtcNow; // Soft delete
+            //_context.Groups.Update(group);
+
+            _context.Groups.Remove(group);  // Xóa hẳn khỏi DB
+            await _context.SaveChangesAsync(); // Lưu thay đổi vào DB
         }
 
         public async Task SaveChangesAsync()
