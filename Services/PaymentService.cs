@@ -1,4 +1,6 @@
-﻿using PayPalCheckoutSdk.Orders;
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using Microsoft.EntityFrameworkCore;
 using Repositories;
 using Repositories.DTOs.Payment;
 using Repositories.Entities;
@@ -14,14 +16,25 @@ namespace Services
         private readonly CarUserRepository _carUserRepository;
         private readonly UserRepository _userRepository;
         private readonly TransactionRepository _transactionRepository;
+        private readonly IMapper _mapper;
 
-        public PaymentService(PaymentPayPalRepository paymentPayPalRepository, PaymentRepository paymentRepository, CarUserRepository carUserRepository, UserRepository userRepository, TransactionRepository transactionRepository)
+        public PaymentService(PaymentPayPalRepository paymentPayPalRepository, PaymentRepository paymentRepository, CarUserRepository carUserRepository, UserRepository userRepository, TransactionRepository transactionRepository, IMapper mapper)
         {
             _paymentPayPalRepository = paymentPayPalRepository;
             _paymentRepository = paymentRepository;
             _carUserRepository = carUserRepository;
             _userRepository = userRepository;
             _transactionRepository = transactionRepository;
+            _mapper = mapper;
+        }
+
+        public async Task<List<PaymentListItemDto>> GetAllPayment()
+        {
+            var query = _paymentRepository.GetAllPaymentQuery();
+            var payments = await query.ProjectTo<PaymentListItemDto>(_mapper.ConfigurationProvider)
+                                      .ToListAsync();
+
+            return payments;
         }
 
         public async Task<ServiceResult<PaymentResponseDto>> CreatePayment(PaymentRequestDto paymentRequest)
@@ -39,7 +52,7 @@ namespace Services
             {
                 CarUserId = carUser.CarUserId,
                 PaymentMethod = "PayPal",
-                Status = Status.Pending,
+                Status = StatusPayment.Pending,
                 OrderId = payPalResponse.OrderId,
                 Amount = paymentRequest.Amount,
                 Currency = paymentRequest.Currency,
@@ -89,7 +102,7 @@ namespace Services
             if (status == "COMPLETED")
             {
                 transaction.Status = Status.Completed;
-                payment.Status = Status.Completed;
+                payment.Status = StatusPayment.Paided;
                 await _transactionRepository.UpdateTransaction(transaction);
                 await _paymentRepository.UpdatePayment(payment);
 
@@ -136,7 +149,7 @@ namespace Services
                 var payment = new Payment
                 {
                     PaymentMethod = "Wallet",
-                    Status = Status.Completed,
+                    Status = StatusPayment.Paided,
                     OrderId = orderId,
                     CarUserId = carUser.CarUserId,
                     Amount = paymentWalletRequestDto.Amount,

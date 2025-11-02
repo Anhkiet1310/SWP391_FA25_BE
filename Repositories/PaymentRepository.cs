@@ -13,6 +13,15 @@ namespace Repositories
             _context = context;
         }
 
+        public IQueryable<Payment> GetAllPaymentQuery()
+        {
+            return _context.Payments
+                           .Include(p => p.CarUser)
+                                .ThenInclude(cu => cu.User)
+                           .Include(p => p.CarUser)
+                                .ThenInclude(cu => cu.Car);
+        }
+
         public async Task<Payment> AddPayment(Payment payment)
         {
             _context.Payments.Add(payment);

@@ -15,6 +15,24 @@ namespace SWP391.Controllers
             _paymentService = paymentService;
         }
 
+        [HttpGet()]
+        public IActionResult GetAllPayment()
+        {
+            try
+            {
+                var payments = _paymentService.GetAllPayment().Result;
+                return Ok(new
+                {
+                    success = true,
+                    data = payments
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpPost("deposit")]
         public async Task<IActionResult> CreateDeposit(PaymentRequestDto paymentRequest)
         {

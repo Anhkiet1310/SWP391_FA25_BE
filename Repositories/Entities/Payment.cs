@@ -11,7 +11,7 @@ namespace Repositories.Entities
     {
         public int PaymentId { get; set; }
         public string PaymentMethod { get; set; }
-        public Status Status { get; set; }
+        public StatusPayment Status { get; set; }
         public int? CarUserId { get; set; }
         public string OrderId { get; set; }         
         public decimal Amount { get; set; }
