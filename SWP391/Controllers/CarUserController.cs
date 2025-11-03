@@ -103,33 +103,43 @@ namespace SWP391.Controllers
                 return NotFound($"User with id {userId} not found.");
 
             var existing = await _context.CarUsers
-                .FirstOrDefaultAsync(cUser => cUser.CarId == carId && cUser.UserId == userId && cUser.DeleteAt == null);
+                .FirstOrDefaultAsync(cUser => cUser.CarId == carId && cUser.UserId == userId);
 
             if (existing != null)
                 return Conflict($"User {userId} is already linked to Car {carId}.");
 
-            var carUser = new CarUser
+            try
             {
-                CarId = carId,
-                UserId = userId,
-                CreatedAt = DateTime.UtcNow
-            };
+                // Add the new car-user relationship
+                var carUser = new CarUser
+                {
+                    CarId = carId,
+                    UserId = userId,
+                    CreatedAt = DateTime.UtcNow
+                };
 
-            _context.CarUsers.Add(carUser);
-            await _context.SaveChangesAsync();
+                _context.CarUsers.Add(carUser);
+                await _context.SaveChangesAsync();
 
-            var result = new CarUserDto
+                // Return the result
+                var result = new CarUserDto
+                {
+                    CarUserId = carUser.CarUserId,
+                    CarId = car.CarId,
+                    CarName = car.CarName,
+                    UserId = user.UserId,
+                    UserFullName = user.FullName,
+                    OwnershipPercentage = carUser.PercentOwnership?.Percentage,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                return Ok(result);
+            }
+            catch (Exception ex)
             {
-                CarUserId = carUser.CarUserId,
-                CarId = car.CarId,
-                CarName = car.CarName,
-                UserId = user.UserId,
-                UserFullName = user.FullName,
-                OwnershipPercentage = carUser.PercentOwnership?.Percentage,
-                CreatedAt = DateTime.UtcNow
-            };
-
-            return Ok(result);
+                // Re-throw if it's a different type of error
+                throw;
+            }
         }
 
         // ✅ DELETE: /api/cars/{carId}/users/{userId}/remove

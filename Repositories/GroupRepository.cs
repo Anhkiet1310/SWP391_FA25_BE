@@ -29,7 +29,7 @@ namespace Repositories
                 .Include(g => g.Car)  // Include Car if needed
                 .FirstOrDefaultAsync(g => g.GroupId == id && g.DeleteAt == null);
         }
-
+        
         public async Task AddAsync(Group group)
         {
             await _context.Groups.AddAsync(group);
