@@ -149,13 +149,16 @@ namespace SWP391.Controllers
             var carUser = await _context.CarUsers
                 .Include(cu => cu.Car)
                 .Include(cu => cu.User)
-                .FirstOrDefaultAsync(cUser => cUser.CarId == carId && cUser.UserId == userId && cUser.DeleteAt == null);
+                .FirstOrDefaultAsync(cUser => cUser.CarId == carId && cUser.UserId == userId);
 
             if (carUser == null)
                 return NotFound($"Relationship between Car {carId} and User {userId} not found.");
 
-            carUser.DeleteAt = DateTime.UtcNow;
-            _context.CarUsers.Update(carUser);
+            //carUser.DeleteAt = DateTime.UtcNow;
+            //_context.CarUsers.Update(carUser);
+            //await _context.SaveChangesAsync();
+
+            _context.CarUsers.Remove(carUser);
             await _context.SaveChangesAsync();
 
             return Ok(new
