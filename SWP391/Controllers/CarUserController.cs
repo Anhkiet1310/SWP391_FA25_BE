@@ -72,6 +72,7 @@ namespace SWP391.Controllers
         {
             var carUsers = await _context.CarUsers
                 .Include(cu => cu.Car)  // Bao gồm thông tin xe
+                .Include(cu => cu.PercentOwnership)  // Bao gồm thông tin tỷ lệ sở hữu
                 .Where(cu => cu.UserId == userId && cu.DeleteAt == null)  // Kiểm tra mối quan hệ chưa bị xóa
                 .Select(cu => new
                 {
@@ -81,6 +82,7 @@ namespace SWP391.Controllers
                     PlateNumber = cu.Car.PlateNumber,
                     Status = cu.Car.Status,
                     BatteryCapacity = cu.Car.BatteryCapacity,
+                    OwnershipPercentage = cu.PercentOwnership != null ? cu.PercentOwnership.Percentage : 0,  // Lấy tỷ lệ sở hữu từ PercentOwnership
                     CreatedAt = cu.CreatedAt
                 })
                 .ToListAsync();
