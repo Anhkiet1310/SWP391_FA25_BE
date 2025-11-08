@@ -16,6 +16,17 @@ namespace SWP391.Controllers
             _formService = formService;
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetAllForms()
+        {
+            var forms = await _formService.GetAllFormsAsync();
+            if (forms == null || !forms.Any())
+                return NotFound("No forms found.");
+
+            return Ok(forms);
+        }
+
+
         [HttpPost]
         public async Task<IActionResult> CreateForm([FromBody] FormCreateDto dto)
         {

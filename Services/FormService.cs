@@ -1,4 +1,5 @@
-﻿using Repositories;
+﻿using Microsoft.EntityFrameworkCore;
+using Repositories;
 using Repositories.DBContext;
 using Repositories.DTOs.Form;
 using Repositories.Entities;
@@ -20,6 +21,23 @@ namespace Services
             _formRepo = formRepo;
             _context = context;
         }
+
+        public async Task<IEnumerable<object>> GetAllFormsAsync()
+        {
+            var forms = await _context.Forms
+                .Select(f => new
+                {
+                    f.FormId,
+                    f.FormTitle,
+                    f.StartDate,
+                    f.EndDate,
+                    f.GroupId
+                })
+                .ToListAsync();
+
+            return forms;
+        }
+
 
         public async Task<Form?> CreateFormAsync(FormCreateDto dto)
         {
