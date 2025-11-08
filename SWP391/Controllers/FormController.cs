@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Repositories.DTOs.Form;
 using Services;
 
@@ -55,5 +56,17 @@ namespace SWP391.Controllers
 
             return Ok(result);
         }
+
+        // DELETE: api/forms/{id}/delete
+        [HttpDelete("{id}/delete")]
+        public async Task<IActionResult> DeleteForm(int id)
+        {
+            var form = await _formService.DeleteFormAsync(id);
+            if (form == null)
+                return NotFound($"Form with id {id} not found.");
+
+            return Ok(new { Message = $"Form with id {id} has been deleted." });
+        }
+
     }
 }

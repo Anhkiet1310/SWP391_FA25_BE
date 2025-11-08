@@ -87,5 +87,10 @@ namespace Services
         {
             return await _formRepo.GetByIdAsync(id);
         }
+
+        public async Task<Form?> DeleteFormAsync(int id)
+        {
+            return await _formRepo.DeleteFormAsync(id);
+        }
     }
 }
