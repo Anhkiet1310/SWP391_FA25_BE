@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Repositories.DBContext;
 
@@ -11,9 +12,11 @@ using Repositories.DBContext;
 namespace Repositories.Migrations
 {
     [DbContext(typeof(Co_ownershipAndCost_sharingDbContext))]
-    partial class Co_ownershipAndCost_sharingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251109175228_MyMigrationName")]
+    partial class MyMigrationName
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -303,9 +306,9 @@ namespace Repositories.Migrations
                         {
                             MaintenanceId = 1,
                             CarId = 1,
-                            CreatedAt = new DateTime(2025, 11, 9, 17, 52, 52, 756, DateTimeKind.Utc).AddTicks(6726),
+                            CreatedAt = new DateTime(2025, 11, 9, 17, 52, 28, 552, DateTimeKind.Utc).AddTicks(8125),
                             Description = "Thay dầu và kiểm tra tổng quát",
-                            MaintenanceDay = new DateTime(2025, 11, 9, 17, 52, 52, 756, DateTimeKind.Utc).AddTicks(6721),
+                            MaintenanceDay = new DateTime(2025, 11, 9, 17, 52, 28, 552, DateTimeKind.Utc).AddTicks(8120),
                             MaintenanceType = "Bảo dưỡng định kỳ",
                             Price = 500.00m,
                             Status = 1

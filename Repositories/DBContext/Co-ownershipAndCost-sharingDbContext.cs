@@ -24,6 +24,7 @@ namespace Repositories.DBContext
         public DbSet<User> Users { get; set; }
         public DbSet<UserGroup> UserGroups { get; set; }
         public DbSet<Vote> Votes { get; set; }
+        public DbSet<Maintenance> Maintenances { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -41,6 +42,7 @@ namespace Repositories.DBContext
             modelBuilder.ApplyConfiguration(new UserConfiguration());
             modelBuilder.ApplyConfiguration(new UserGroupConfiguration());
             modelBuilder.ApplyConfiguration(new VoteConfiguration());
+            modelBuilder.ApplyConfiguration(new MaintenanceConfiguration());
 
             base.OnModelCreating(modelBuilder);
         }

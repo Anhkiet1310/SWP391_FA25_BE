@@ -20,14 +20,11 @@ builder.Services.AddControllers()
     });
 
 // CORS configuration: read allowed origins from configuration (appsettings.json)
-var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
-                     ?? new[] { "http://40.82.145.164:8080" };
-
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("DefaultCorsPolicy", policy =>
     {
-        policy.WithOrigins(allowedOrigins)
+        policy.AllowAnyOrigin()
               .AllowAnyMethod()
               .AllowAnyHeader()
               .AllowCredentials(); // If you don't need cookies/auth credentials from browser, remove this and Use AllowAnyOrigin() instead.
@@ -105,6 +102,7 @@ builder.Services.AddScoped<CarUserRepository>();
 builder.Services.AddScoped<PaymentRepository>();
 builder.Services.AddScoped<TransactionRepository>();
 builder.Services.AddScoped<PercentOwnershipRepository>();
+builder.Services.AddScoped<MaintenanceRepository>();
 
 //DI Service
 builder.Services.AddScoped<UserService>();
@@ -120,6 +118,7 @@ builder.Services.AddScoped<OcrService>();
 builder.Services.AddHttpClient<OcrService>();
 builder.Services.AddScoped<TransactionService>();
 builder.Services.AddScoped<PercentOwnershipService>();
+builder.Services.AddScoped<MaintenanceService>();
 
 //PayPal
 builder.Services.AddScoped<PaymentPayPalRepository>(provider =>
