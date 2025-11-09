@@ -11,6 +11,7 @@ namespace Repositories.DTOs.Payment
         public string? PlateNumber { get; set; }
         public string? OrderId { get; set; }
         public decimal Amount { get; set; }
+        public decimal AmountVnd { get; set; }
         public string? Currency { get; set; }
         public string? Description { get; set; }
         public DateTime? CreatedAt { get; set; }

@@ -90,6 +90,8 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+builder.Services.AddHttpClient();
+
 //DI Controller
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<CarRepository>();
@@ -125,6 +127,14 @@ builder.Services.AddScoped<PaymentPayPalRepository>(provider =>
     new PaymentPayPalRepository(
         builder.Configuration["PayPal:ClientId"],
         builder.Configuration["PayPal:Secret"]
+    )
+);
+
+builder.Services.AddScoped<PaymentPayOSRepository>(provider =>
+    new PaymentPayOSRepository(
+        builder.Configuration["PayOS:ClientId"],
+        builder.Configuration["PayOS:ApiKey"],
+        builder.Configuration["PayOS:ChecksumKey"]
     )
 );
 
