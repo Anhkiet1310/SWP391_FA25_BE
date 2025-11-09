@@ -10,6 +10,8 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.WebHost.UseUrls("https://*:5001");
+
 // Add services to the container.
 
 builder.Services.AddControllers()
