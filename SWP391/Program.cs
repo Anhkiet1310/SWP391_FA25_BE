@@ -131,6 +131,14 @@ builder.Services.AddScoped<PaymentPayPalRepository>(provider =>
     )
 );
 
+builder.Services.AddScoped<PaymentPayOSRepository>(provider =>
+    new PaymentPayOSRepository(
+        builder.Configuration["PayOS:ClientId"],
+        builder.Configuration["PayOS:ApiKey"],
+        builder.Configuration["PayOS:ChecksumKey"]
+    )
+);
+
 var app = builder.Build();
 
 // Use CORS policy

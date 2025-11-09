@@ -15,6 +15,17 @@ namespace SWP391.Controllers
             _paymentService = paymentService;
         }
 
+        [HttpGet("/test")]
+        public IActionResult GetUrl()
+        {
+            var response = _paymentService.TestPayOSAsync().Result;
+            return Ok(new
+            {
+                success = true,
+                data = response.Data
+            });
+        }
+
         [HttpGet()]
         public IActionResult GetAllPayment()
         {
@@ -93,6 +104,36 @@ namespace SWP391.Controllers
             }
         }
 
+        [HttpPost("payos")]
+        public async Task<IActionResult> CreatePayOS(PaymentRequestDto paymentRequest)
+        {
+            if (paymentRequest == null || paymentRequest.Amount <= 0 || string.IsNullOrEmpty(paymentRequest.Currency))
+            {
+                return BadRequest("Invalid payment request");
+            }
+            try
+            {
+                var paymentResponse = await _paymentService.CreatePaymentWithPayOS(paymentRequest);
+                if (paymentResponse.Success == false)
+                {
+                    return BadRequest(new
+                    {
+                        success = paymentResponse.Success,
+                        message = paymentResponse.Message
+                    });
+                }
+                return Ok(new
+                {
+                    success = paymentResponse.Success,
+                    data = paymentResponse.Data
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpPost("capture/{orderId}")]
         public async Task<IActionResult> CapturePayment(string orderId, int userId)
         {
@@ -114,6 +155,35 @@ namespace SWP391.Controllers
                     success = captureResult.Success,
                     message = "Payment successful!", 
                     Status = captureResult.Data 
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("capture/payos/{orderId}")]
+        public async Task<IActionResult> CapturePayOSPayment(string orderId, int userId)
+        {
+            if (string.IsNullOrEmpty(orderId))
+            {
+                return BadRequest("Invalid order ID");
+            }
+            try
+            {
+                var captureResult = await _paymentService.CapturePayOSPayment(orderId, userId);
+                if (captureResult.Success == false)
+                    return BadRequest(new
+                    {
+                        success = captureResult.Success,
+                        message = captureResult.Message
+                    });
+                return Ok(new
+                {
+                    success = captureResult.Success,
+                    message = "Payment successful!",
+                    Status = captureResult.Data
                 });
             }
             catch (Exception ex)
