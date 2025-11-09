@@ -44,5 +44,23 @@ namespace Repositories
         {
             return await _context.Forms.AnyAsync(f => f.FormId == id);
         }
+
+        public async Task<Form?> GetFormByIdAsync(int id)
+        {
+            return await _context.Forms
+                .FirstOrDefaultAsync(f => f.FormId == id);
+        }
+
+        public async Task<Form?> DeleteFormAsync(int id)
+        {
+            var form = await _context.Forms.FindAsync(id);
+            if (form == null)
+                return null;
+
+            _context.Forms.Remove(form);  // Xóa form khỏi DB
+            await _context.SaveChangesAsync();  // Lưu thay đổi
+
+            return form;  // Trả về form đã bị xóa
+        }
     }
 }
