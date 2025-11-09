@@ -6,6 +6,7 @@ using Repositories.DTOs.Payment;
 using Repositories.Entities;
 using Repositories.Enum;
 using Services.Utils;
+using System.Text.Json;
 
 namespace Services
 {
@@ -17,8 +18,10 @@ namespace Services
         private readonly UserRepository _userRepository;
         private readonly TransactionRepository _transactionRepository;
         private readonly IMapper _mapper;
+        private readonly HttpClient _httpClient;
 
-        public PaymentService(PaymentPayPalRepository paymentPayPalRepository, PaymentRepository paymentRepository, CarUserRepository carUserRepository, UserRepository userRepository, TransactionRepository transactionRepository, IMapper mapper)
+
+        public PaymentService(PaymentPayPalRepository paymentPayPalRepository, PaymentRepository paymentRepository, CarUserRepository carUserRepository, UserRepository userRepository, TransactionRepository transactionRepository, IMapper mapper, HttpClient httpClient)
         {
             _paymentPayPalRepository = paymentPayPalRepository;
             _paymentRepository = paymentRepository;
@@ -26,14 +29,23 @@ namespace Services
             _userRepository = userRepository;
             _transactionRepository = transactionRepository;
             _mapper = mapper;
+            _httpClient = httpClient;
         }
 
         public async Task<List<PaymentListItemDto>> GetAllPayment()
         {
+            var exchangeRate = await GetUsdToVndRate();
             var query = _paymentRepository.GetAllPaymentQuery();
             var payments = await query.ProjectTo<PaymentListItemDto>(_mapper.ConfigurationProvider)
                                       .ToListAsync();
 
+            foreach (var payment in payments)
+            {
+                if (payment.Currency == "USD")
+                {
+                    payment.AmountVnd = payment.Amount * exchangeRate;
+                }
+            }
             return payments;
         }
 
@@ -192,6 +204,14 @@ namespace Services
                     Message = $"Payment failed: {ex.Message}"
                 };
             }
+        }
+
+        private async Task<decimal> GetUsdToVndRate()
+        {
+            var response = await _httpClient.GetStringAsync("https://open.er-api.com/v6/latest/USD");
+            var jsonDoc = JsonDocument.Parse(response);
+            var rates = jsonDoc.RootElement.GetProperty("rates");
+            return rates.GetProperty("VND").GetDecimal();
         }
     }
 }

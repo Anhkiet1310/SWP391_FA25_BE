@@ -76,6 +76,8 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+builder.Services.AddHttpClient();
+
 //DI Controller
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<CarRepository>();
