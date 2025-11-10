@@ -12,9 +12,9 @@ namespace Services
             _carUserRepository = carUserRepository;
         }
 
-        public async Task<CarUser> GetCarUserByUserId(int userId)
+        public async Task<CarUser> GetCarUserByUserId(int userId, int carId)
         {
-            return await _carUserRepository.GetCarUserByUserId(userId);
+            return await _carUserRepository.GetCarUserByUserId(userId, carId);
         }
     }
 }

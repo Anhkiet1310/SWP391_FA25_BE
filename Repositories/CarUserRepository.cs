@@ -13,9 +13,9 @@ namespace Repositories
             _context = context;
         }
 
-        public async Task<CarUser> GetCarUserByUserId(int userId)
+        public async Task<CarUser> GetCarUserByUserId(int userId, int carId)
         {
-            return await _context.CarUsers.FirstOrDefaultAsync(cu => cu.UserId == userId);
+            return await _context.CarUsers.FirstOrDefaultAsync(cu => cu.UserId == userId && cu.CarId == carId);
         }
     }
 }

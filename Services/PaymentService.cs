@@ -77,10 +77,10 @@ namespace Services
             return payments;
         }
 
-        public async Task<ServiceResult<PaymentResponseDto>> CreatePayment(PaymentRequestDto paymentRequest)
+        public async Task<ServiceResult<PaymentResponseDto>> CreatePayment(PaymentRequestDto paymentRequest, int carId)
         {
             var payPalResponse = await _paymentPayPalRepository.CreatePayment(paymentRequest);
-            var carUser = await _carUserRepository.GetCarUserByUserId(paymentRequest.UserId);
+            var carUser = await _carUserRepository.GetCarUserByUserId(paymentRequest.UserId, carId);
             if (carUser == null)
                 return new ServiceResult<PaymentResponseDto>
                 {
@@ -119,7 +119,7 @@ namespace Services
             };
         }
 
-        public async Task<ServiceResult<PaymentResponseDto>> CreatePaymentWithPayOS(PaymentRequestDto paymentRequest)
+        public async Task<ServiceResult<PaymentResponseDto>> CreatePaymentWithPayOS(PaymentRequestDto paymentRequest, int carId)
         {
             var value = new BigInteger(Guid.NewGuid().ToByteArray().Concat(new byte[] { 0 }).ToArray());
             long randomOrderId = (long)(BigInteger.Abs(value) % 10000000000L);
@@ -131,7 +131,7 @@ namespace Services
                 CancelUrl = paymentRequest.CancelUrl,
             };
             var payOSResponse = await _paymentPayOSRepository.CreatePayment(payOSRequest);
-            var carUser = await _carUserRepository.GetCarUserByUserId(paymentRequest.UserId);
+            var carUser = await _carUserRepository.GetCarUserByUserId(paymentRequest.UserId, carId);
             if (carUser == null)
                 return new ServiceResult<PaymentResponseDto>
                 {
@@ -264,9 +264,9 @@ namespace Services
             };
         }
 
-        public async Task<ServiceResult<bool>> PayWithWallet(PaymentWalletRequestDto paymentWalletRequestDto)
+        public async Task<ServiceResult<bool>> PayWithWallet(PaymentWalletRequestDto paymentWalletRequestDto, int carId)
         {
-            var carUser = await _carUserRepository.GetCarUserByUserId(paymentWalletRequestDto.UserId);
+            var carUser = await _carUserRepository.GetCarUserByUserId(paymentWalletRequestDto.UserId, carId);
             if (carUser == null)
                 return new ServiceResult<bool>
                 {
