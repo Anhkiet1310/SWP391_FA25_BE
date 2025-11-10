@@ -23,7 +23,7 @@ namespace SWP391.Controllers
 
 
         //[HttpGet("{userId}")]
-        //public async Task<IActionResult> GetCarUserByUserId(int userId)
+        //public async Task<IActionResult> GetCarUserByUserId(int userId, int carId)
         //{
         //    if (userId <= 0)
         //    {
@@ -31,7 +31,7 @@ namespace SWP391.Controllers
         //    }
         //    try
         //    {
-        //        var carUser = await _carUserService.GetCarUserByUserId(userId);
+        //        var carUser = await _carUserService.GetCarUserByUserId(userId, carId);
         //        if (carUser == null)
         //            return NotFound(new { message = "Not found!" });
         //        return Ok(carUser);
