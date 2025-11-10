@@ -16,6 +16,17 @@ namespace SWP391.Controllers
             _voteService = voteService;
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetAllVotes()
+        {
+            var votes = await _voteService.GetAllVotesAsync();
+            if (votes == null || !votes.Any())
+                return NotFound("No votes found.");
+
+            return Ok(votes);
+        }
+
+
         [HttpPost]
         public async Task<IActionResult> CreateVote([FromBody] VoteCreateDto dto)
         {

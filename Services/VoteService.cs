@@ -21,6 +21,12 @@ namespace Services
             _context = context;
         }
 
+        public async Task<IEnumerable<VoteDto>> GetAllVotesAsync()
+        {
+            return await _voteRepo.GetAllVotesAsync();
+        }
+
+
         public async Task<(bool Success, string Message, Vote? Vote)> CreateVoteAsync(VoteCreateDto dto)
         {
             var user = await _context.Users.FindAsync(dto.UserId);
