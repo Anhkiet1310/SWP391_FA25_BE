@@ -39,6 +39,25 @@ namespace Repositories
                 .FirstOrDefaultAsync(m => m.MaintenanceId == id);
         }
 
+        public async Task<Maintenance?> UpdateMaintenanceAsync(int id, Maintenance updatedMaintenance)
+        {
+            var existingMaintenance = await _context.Maintenances.FindAsync(id);
+            if (existingMaintenance == null)
+                return null;
+
+            // Cập nhật các trường dữ liệu
+            existingMaintenance.MaintenanceType = updatedMaintenance.MaintenanceType;
+            existingMaintenance.MaintenanceDay = updatedMaintenance.MaintenanceDay;
+            existingMaintenance.Status = updatedMaintenance.Status;
+            existingMaintenance.Description = updatedMaintenance.Description;
+            existingMaintenance.Price = updatedMaintenance.Price;
+            existingMaintenance.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+            return existingMaintenance;
+        }
+
+
         public async Task<Maintenance?> DeleteMaintenanceAsync(int id)
         {
             var maintenance = await _context.Maintenances.FindAsync(id);

@@ -56,6 +56,24 @@ namespace Services
             return await _maintenanceRepo.GetByIdAsync(id);
         }
 
+        public async Task<Maintenance?> UpdateMaintenanceAsync(int id, MaintenanceCreateDto dto)
+        {
+            var maintenance = await _context.Maintenances.FindAsync(id);
+            if (maintenance == null)
+                return null;
+
+            // Cập nhật giá trị từ DTO vào entity
+            maintenance.MaintenanceType = dto.MaintenanceType;
+            maintenance.MaintenanceDay = dto.MaintenanceDay;
+            maintenance.Status = (MaintenanceStatus)dto.Status;
+            maintenance.Description = dto.Description;
+            maintenance.Price = dto.Price;
+            maintenance.UpdatedAt = DateTime.UtcNow;
+
+            return await _maintenanceRepo.UpdateMaintenanceAsync(id, maintenance);
+        }
+
+
         public async Task<Maintenance?> DeleteMaintenanceAsync(int id)
         {
             return await _maintenanceRepo.DeleteMaintenanceAsync(id);

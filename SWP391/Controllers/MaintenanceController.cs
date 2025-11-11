@@ -49,6 +49,18 @@ namespace SWP391.Controllers
             return Ok(maintenance);
         }
 
+        // ✅ PUT: /api/maintenance/{id}/update
+        [HttpPut("{id}/update")]
+        public async Task<IActionResult> UpdateMaintenance(int id, [FromBody] MaintenanceCreateDto dto)
+        {
+            var updatedMaintenance = await _maintenanceService.UpdateMaintenanceAsync(id, dto);
+            if (updatedMaintenance == null)
+                return NotFound($"Maintenance with id {id} not found.");
+
+            return Ok(updatedMaintenance);
+        }
+
+
         // ✅ DELETE: /api/maintenance/{id}/delete
         [HttpDelete("{id}/delete")]
         public async Task<IActionResult> DeleteMaintenance(int id)
