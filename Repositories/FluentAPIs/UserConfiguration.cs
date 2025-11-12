@@ -26,6 +26,10 @@ namespace Repositories.FluentAPIs
             builder.HasMany(u => u.UserGroups)
                    .WithOne(ug => ug.User)
                    .HasForeignKey(ug => ug.UserId);
+
+            builder.HasMany(u => u.Payments)
+                   .WithOne(p => p.User)
+                   .HasForeignKey(p => p.UserId);
         }
     }
 }

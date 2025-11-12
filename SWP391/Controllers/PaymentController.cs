@@ -45,7 +45,7 @@ namespace SWP391.Controllers
         }
 
         [HttpPost("deposit")]
-        public async Task<IActionResult> CreateDeposit(PaymentRequestDto paymentRequest, int carId)
+        public async Task<IActionResult> CreateDeposit(PaymentRequestDto paymentRequest)
         {
             if (paymentRequest == null || paymentRequest.Amount <= 0 || string.IsNullOrEmpty(paymentRequest.Currency))
             {
@@ -53,7 +53,7 @@ namespace SWP391.Controllers
             }
             try
             {
-                var paymentResponse = await _paymentService.CreatePayment(paymentRequest, carId);
+                var paymentResponse = await _paymentService.CreatePayment(paymentRequest);
                 if (paymentResponse.Success == false)
                 {
                     return BadRequest(new
@@ -75,7 +75,7 @@ namespace SWP391.Controllers
         }
 
         [HttpPost("paypal")]
-        public async Task<IActionResult> CreatePaypal(PaymentRequestDto paymentRequest, int carId)
+        public async Task<IActionResult> CreatePaypal(PaymentRequestDto paymentRequest)
         {
             if (paymentRequest == null || paymentRequest.Amount <= 0 || string.IsNullOrEmpty(paymentRequest.Currency))
             {
@@ -83,7 +83,7 @@ namespace SWP391.Controllers
             }
             try
             {
-                var paymentResponse = await _paymentService.CreatePayment(paymentRequest, carId);
+                var paymentResponse = await _paymentService.CreatePayment(paymentRequest);
                 if (paymentResponse.Success == false)
                 {
                     return BadRequest(new
@@ -105,7 +105,7 @@ namespace SWP391.Controllers
         }
 
         [HttpPost("payos")]
-        public async Task<IActionResult> CreatePayOS(PaymentRequestDto paymentRequest, int carId)
+        public async Task<IActionResult> CreatePayOS(PaymentRequestDto paymentRequest)
         {
             if (paymentRequest == null || paymentRequest.Amount <= 0 || string.IsNullOrEmpty(paymentRequest.Currency))
             {
@@ -113,7 +113,7 @@ namespace SWP391.Controllers
             }
             try
             {
-                var paymentResponse = await _paymentService.CreatePaymentWithPayOS(paymentRequest, carId);
+                var paymentResponse = await _paymentService.CreatePaymentWithPayOS(paymentRequest);
                 if (paymentResponse.Success == false)
                 {
                     return BadRequest(new

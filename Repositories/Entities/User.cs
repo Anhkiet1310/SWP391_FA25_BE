@@ -23,5 +23,6 @@ namespace Repositories.Entities
         public ICollection<UserGroup> UserGroups { get; set; }
         public ICollection<CarUser> CarUsers { get; set; }
         public ICollection<Vote> Votes { get; set; }
+        public ICollection<Payment> Payments { get; set; }
     }
 }

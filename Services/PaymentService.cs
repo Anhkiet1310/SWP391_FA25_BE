@@ -17,18 +17,20 @@ namespace Services
         private readonly PaymentPayOSRepository _paymentPayOSRepository;
         private readonly PaymentRepository _paymentRepository;
         private readonly CarUserRepository _carUserRepository;
+        private readonly CarRepository _carRepository;
         private readonly UserRepository _userRepository;
         private readonly TransactionRepository _transactionRepository;
         private readonly IMapper _mapper;
         private readonly HttpClient _httpClient;
 
 
-        public PaymentService(PaymentPayPalRepository paymentPayPalRepository, PaymentPayOSRepository paymentPayOSRepository, PaymentRepository paymentRepository, CarUserRepository carUserRepository, UserRepository userRepository, TransactionRepository transactionRepository, IMapper mapper, HttpClient httpClient)
+        public PaymentService(PaymentPayPalRepository paymentPayPalRepository, PaymentPayOSRepository paymentPayOSRepository, PaymentRepository paymentRepository, CarUserRepository carUserRepository, CarRepository carRepository, UserRepository userRepository, TransactionRepository transactionRepository, IMapper mapper, HttpClient httpClient)
         {
             _paymentPayPalRepository = paymentPayPalRepository;
             _paymentPayOSRepository = paymentPayOSRepository;
             _paymentRepository = paymentRepository;
             _carUserRepository = carUserRepository;
+            _carRepository = carRepository;
             _userRepository = userRepository;
             _transactionRepository = transactionRepository;
             _mapper = mapper;
@@ -64,33 +66,64 @@ namespace Services
         {
             var exchangeRate = await GetUsdToVndRate();
             var query = _paymentRepository.GetAllPaymentQuery();
-            var payments = await query.ProjectTo<PaymentListItemDto>(_mapper.ConfigurationProvider)
-                                      .ToListAsync();
+            //var payments = await query.ProjectTo<PaymentListItemDto>(_mapper.ConfigurationProvider)
+            //                          .ToListAsync();
+            var payments = await query.ToListAsync();
 
-            foreach (var payment in payments)
+            var transaction = await _transactionRepository.GetTransactionByOrderId(payments.First().OrderId);
+            var carUser = await _carUserRepository.GetCarUserById(transaction.CarUserId);
+            var car = await _carRepository.GetByIdAsync(carUser.CarId);
+
+            var result = payments.Select(p => new PaymentListItemDto
             {
-                if (payment.Currency == "USD")
-                {
-                    payment.AmountVnd = payment.Amount * exchangeRate;
-                }
-            }
-            return payments;
+                PaymentId = p.PaymentId,
+                CarName = car.CarName,
+                PlateNumber = car.PlateNumber,
+                OrderId = p.OrderId,
+                Amount = p.Amount,
+                Currency = p.Currency,
+                AmountVnd = p.Amount * exchangeRate,
+                Description = p.Description,
+                PaymentMethod = p.PaymentMethod,
+                Status = p.Status.ToString(),
+                CreatedAt = p.CreatedAt,
+            }).ToList();
+
+            return result;
+
+            //foreach (var payment in payments)
+            //{
+            //    if (payment.Currency == "USD")
+            //    {
+            //        payment.AmountVnd = payment.Amount * exchangeRate;
+            //    }
+            //}
+            //return payments;
         }
 
-        public async Task<ServiceResult<PaymentResponseDto>> CreatePayment(PaymentRequestDto paymentRequest, int carId)
+        public async Task<ServiceResult<PaymentResponseDto>> CreatePayment(PaymentRequestDto paymentRequest)
         {
             var payPalResponse = await _paymentPayPalRepository.CreatePayment(paymentRequest);
-            var carUser = await _carUserRepository.GetCarUserByUserId(paymentRequest.UserId, carId);
-            if (carUser == null)
+            //var carUser = await _carUserRepository.GetCarUserByUserId(paymentRequest.UserId, carId);
+            //if (carUser == null)
+            //    return new ServiceResult<PaymentResponseDto>
+            //    {
+            //        Success = false,
+            //        Message = "Caruser not found."
+            //    };
+            var user = await _userRepository.GetUserById(paymentRequest.UserId);
+            if (user == null)
+            {
                 return new ServiceResult<PaymentResponseDto>
                 {
                     Success = false,
-                    Message = "Caruser not found."
+                    Message = "User with id not found."
                 };
+            }
 
             var payment = new Payment
             {
-                CarUserId = carUser.CarUserId,
+                UserId = paymentRequest.UserId,
                 PaymentMethod = "PayPal",
                 Status = StatusPayment.Pending,
                 OrderId = payPalResponse.OrderId,
@@ -103,7 +136,7 @@ namespace Services
 
             var transaction = new Transaction
             {
-                CarUserId = carUser.CarUserId,
+                CarUserId = null,
                 Amount = paymentRequest.Amount,
                 TransactionType = paymentRequest.TransactionType,
                 Status = Status.Pending,
@@ -119,7 +152,7 @@ namespace Services
             };
         }
 
-        public async Task<ServiceResult<PaymentResponseDto>> CreatePaymentWithPayOS(PaymentRequestDto paymentRequest, int carId)
+        public async Task<ServiceResult<PaymentResponseDto>> CreatePaymentWithPayOS(PaymentRequestDto paymentRequest)
         {
             var value = new BigInteger(Guid.NewGuid().ToByteArray().Concat(new byte[] { 0 }).ToArray());
             long randomOrderId = (long)(BigInteger.Abs(value) % 10000000000L);
@@ -131,17 +164,26 @@ namespace Services
                 CancelUrl = paymentRequest.CancelUrl,
             };
             var payOSResponse = await _paymentPayOSRepository.CreatePayment(payOSRequest);
-            var carUser = await _carUserRepository.GetCarUserByUserId(paymentRequest.UserId, carId);
-            if (carUser == null)
+            //var carUser = await _carUserRepository.GetCarUserByUserId(paymentRequest.UserId, carId);
+            //if (carUser == null)
+            //    return new ServiceResult<PaymentResponseDto>
+            //    {
+            //        Success = false,
+            //        Message = "Car user not found."
+            //    };
+            var user = await _userRepository.GetUserById(paymentRequest.UserId);
+            if (user == null)
+            {
                 return new ServiceResult<PaymentResponseDto>
                 {
                     Success = false,
-                    Message = "Car user not found."
+                    Message = "User with id not found."
                 };
+            }
 
             var payment = new Payment
             {
-                CarUserId = carUser.CarUserId,
+                UserId = paymentRequest.UserId,
                 PaymentMethod = "PayOS",
                 Status = StatusPayment.Pending,
                 OrderId = payOSResponse.OrderId,
@@ -154,7 +196,8 @@ namespace Services
 
             var transaction = new Transaction
             {
-                CarUserId = carUser.CarUserId,
+                CarUserId = null,
+                PaymentId = payment.PaymentId,
                 Amount = paymentRequest.Amount,
                 TransactionType = paymentRequest.TransactionType,
                 Status = Status.Pending,
@@ -290,7 +333,7 @@ namespace Services
                     PaymentMethod = "Wallet",
                     Status = StatusPayment.Paided,
                     OrderId = orderId,
-                    CarUserId = carUser.CarUserId,
+                    UserId = paymentWalletRequestDto.UserId,
                     Amount = paymentWalletRequestDto.Amount,
                     Currency = "USD",
                     Description = paymentWalletRequestDto.Description,

@@ -29,10 +29,10 @@ namespace Repositories.Mappings
             CreateMap<ScheduleUpdateDto, Schedule>()
                 .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => DateTime.UtcNow));
 
-            CreateMap<Payment, PaymentListItemDto>()
-            .ForMember(dest => dest.CarName, opt => opt.MapFrom(src => src.CarUser.Car.CarName))
-            .ForMember(dest => dest.PlateNumber, opt => opt.MapFrom(src => src.CarUser.Car.PlateNumber))
-            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
+            //CreateMap<Payment, PaymentListItemDto>()
+            //.ForMember(dest => dest.CarName, opt => opt.MapFrom(src => src.CarUser.Car.CarName))
+            //.ForMember(dest => dest.PlateNumber, opt => opt.MapFrom(src => src.CarUser.Car.PlateNumber))
+            //.ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
         }
     }
 }
