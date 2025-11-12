@@ -11,7 +11,7 @@ namespace Repositories.Entities
     {
         public int TransactionId { get; set; }
         public int? PaymentId { get; set; }
-        public int CarUserId { get; set; }
+        public int? CarUserId { get; set; }
         public decimal Amount { get; set; }
         public TransactionType TransactionType { get; set; }
         public Status Status { get; set; }

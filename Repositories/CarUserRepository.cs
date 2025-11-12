@@ -17,5 +17,10 @@ namespace Repositories
         {
             return await _context.CarUsers.FirstOrDefaultAsync(cu => cu.UserId == userId && cu.CarId == carId);
         }
+
+        public async Task<CarUser> GetCarUserById(int? carUserId)
+        {
+            return await _context.CarUsers.FirstOrDefaultAsync(c => c.UserId == carUserId);
+        }
     }
 }
