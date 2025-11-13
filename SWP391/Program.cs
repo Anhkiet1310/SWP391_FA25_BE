@@ -20,19 +20,19 @@ builder.Services.AddControllers()
     });
 
 // CORS configuration: read allowed origins from configuration (appsettings.json)
-//var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
-//                     ?? new[] { "http://40.82.145.164:8080" };
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+                     ?? new[] { "http://40.82.145.164:8080" };
 
-//builder.Services.AddCors(options =>
-//{
-//    options.AddPolicy("DefaultCorsPolicy", policy =>
-//    {
-//        policy.WithOrigins(allowedOrigins)
-//              .AllowAnyMethod()
-//              .AllowAnyHeader()
-//              .AllowCredentials(); // If you don't need cookies/auth credentials from browser, remove this and Use AllowAnyOrigin() instead.
-//    });
-//});
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("DefaultCorsPolicy", policy =>
+    {
+        policy.WithOrigins(allowedOrigins)
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials(); // If you don't need cookies/auth credentials from browser, remove this and Use AllowAnyOrigin() instead.
+    });
+});
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
