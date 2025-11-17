@@ -36,7 +36,7 @@ namespace Services
                     Message = "User not found"
                 };
 
-            var result = await IsValidEmail(updateProfileDto.Email);
+            var result = await IsValidEmail(updateProfileDto.Email, true);
             if (result != null)
                 return new ServiceResult<UserUpdateProfileDto>
                 {
@@ -79,7 +79,7 @@ namespace Services
                     Message = resultUserName
                 };
 
-            var resultEmail = await IsValidEmail(userRegisterDto.Email);
+            var resultEmail = await IsValidEmail(userRegisterDto.Email, false);
             if (resultEmail != null)
                 return new ServiceResult<UserResponseDto>
                 {
@@ -116,7 +116,7 @@ namespace Services
             return user;
         }
 
-        private async Task<string?> IsValidEmail(string? email)
+        private async Task<string?> IsValidEmail(string? email, bool update)
         {
             if (string.IsNullOrEmpty(email)) 
                 return "Email are required";
@@ -125,9 +125,12 @@ namespace Services
             if (!Regex.IsMatch(email, pattern, RegexOptions.IgnoreCase))
                 return "Invalid email format";
 
-            var existingEmail = await _userRepository.GetUserByEmail(email);
-            if (existingEmail != null)
-                return "Email already exists";
+            if (!update)
+            {
+                var existingEmail = await _userRepository.GetUserByEmail(email);
+                if (existingEmail != null)
+                    return "Email already exists";
+            }
 
             return null;
         }
