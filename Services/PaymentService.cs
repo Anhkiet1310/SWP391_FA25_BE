@@ -20,11 +20,12 @@ namespace Services
         private readonly CarRepository _carRepository;
         private readonly UserRepository _userRepository;
         private readonly TransactionRepository _transactionRepository;
+        private readonly MaintenanceRepository _maintenanceRepository;
         private readonly IMapper _mapper;
         private readonly HttpClient _httpClient;
 
 
-        public PaymentService(PaymentPayPalRepository paymentPayPalRepository, PaymentPayOSRepository paymentPayOSRepository, PaymentRepository paymentRepository, CarUserRepository carUserRepository, CarRepository carRepository, UserRepository userRepository, TransactionRepository transactionRepository, IMapper mapper, HttpClient httpClient)
+        public PaymentService(PaymentPayPalRepository paymentPayPalRepository, PaymentPayOSRepository paymentPayOSRepository, PaymentRepository paymentRepository, CarUserRepository carUserRepository, CarRepository carRepository, UserRepository userRepository, TransactionRepository transactionRepository, MaintenanceRepository maintenanceRepository, IMapper mapper, HttpClient httpClient)
         {
             _paymentPayPalRepository = paymentPayPalRepository;
             _paymentPayOSRepository = paymentPayOSRepository;
@@ -33,6 +34,7 @@ namespace Services
             _carRepository = carRepository;
             _userRepository = userRepository;
             _transactionRepository = transactionRepository;
+            _maintenanceRepository = maintenanceRepository;
             _mapper = mapper;
             _httpClient = httpClient;
         }
@@ -325,6 +327,16 @@ namespace Services
                     Message = "Insufficient balance."
                 };
 
+            var maintenance = await _maintenanceRepository.GetMaintenanceByCarId(carId);
+            if (maintenance == null)
+            {
+                return new ServiceResult<bool>
+                {
+                    Success = false,
+                    Message = $"Maintenance of {carId} not found."
+                };
+            }
+
             try
             {
                 var orderId = $"{DateTime.UtcNow:yyyyMMddHHmmssfff}-{paymentWalletRequestDto.UserId}";
@@ -355,6 +367,9 @@ namespace Services
 
                 user.Balance -= paymentWalletRequestDto.Amount;
                 await _userRepository.UpdateProfile(user);
+
+                maintenance.Status = MaintenanceStatus.HoanThanh;
+                await _maintenanceRepository.UpdateMaintenanceAsync(maintenance.MaintenanceId, maintenance);
 
                 return new ServiceResult<bool>
                 {
