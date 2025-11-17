@@ -20,7 +20,7 @@ namespace Repositories
 
         public async Task<CarUser> GetCarUserById(int? carUserId)
         {
-            return await _context.CarUsers.FirstOrDefaultAsync(c => c.UserId == carUserId);
+            return await _context.CarUsers.FirstOrDefaultAsync(c => c.CarUserId == carUserId);
         }
     }
 }

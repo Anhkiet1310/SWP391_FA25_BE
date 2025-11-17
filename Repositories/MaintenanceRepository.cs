@@ -18,6 +18,14 @@ namespace Repositories
             _context = context;
         }
 
+        public async Task<Maintenance> GetMaintenanceByCarId(int carId)
+        {
+            return await _context.Maintenances
+                .Where(m => m.CarId == carId && m.Status == 0)
+                .OrderByDescending(m => m.MaintenanceDay)
+                .FirstOrDefaultAsync();
+        }
+
         public async Task<IEnumerable<Maintenance>> GetAllAsync()
         {
             return await _context.Maintenances
