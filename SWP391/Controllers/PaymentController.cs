@@ -44,6 +44,24 @@ namespace SWP391.Controllers
             }
         }
 
+        [HttpGet("{userId}")]
+        public async Task<IActionResult> GetPaymentsByUserId(int userId)
+        {
+            try
+            {
+                var payments = await _paymentService.GetPaymentsWithUserId(userId);
+                return Ok(new
+                {
+                    success = true,
+                    data = payments
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpPost("deposit")]
         public async Task<IActionResult> CreateDeposit(PaymentRequestDto paymentRequest)
         {

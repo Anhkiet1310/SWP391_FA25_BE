@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
+using PayPalCheckoutSdk.Payments;
 using Repositories;
 using Repositories.DTOs.Payment;
 using Repositories.Entities;
@@ -62,6 +63,31 @@ namespace Services
                     OrderId = paymentResponse.Result.OrderId
                 }
             };
+        }
+
+        public async Task<List<PaymentListItemDto>> GetPaymentsWithUserId(int userId)
+        {
+            var exchangeRate = await GetUsdToVndRate();
+            var payments = await _paymentRepository.GetPaymentsWithUserId(userId);
+            var carUser = await _carUserRepository.GetCarUserById(payments.First().Transactions.First().CarUserId);
+            var car = await _carRepository.GetByIdAsync(carUser.CarId);
+
+            var result = payments.Select(p => new PaymentListItemDto
+            {
+                PaymentId = p.PaymentId,
+                CarName = car.CarName,
+                PlateNumber = car.PlateNumber,
+                OrderId = p.OrderId,
+                Amount = p.Amount,
+                Currency = p.Currency,
+                AmountVnd = p.Amount * exchangeRate,
+                Description = p.Description,
+                PaymentMethod = p.PaymentMethod,
+                Status = p.Status.ToString(),
+                CreatedAt = p.CreatedAt,
+            }).ToList();
+
+            return result;
         }
 
         public async Task<List<PaymentListItemDto>> GetAllPayment()
@@ -339,7 +365,8 @@ namespace Services
 
             try
             {
-                var orderId = $"{DateTime.UtcNow:yyyyMMddHHmmssfff}-{paymentWalletRequestDto.UserId}";
+                //var orderId = $"{DateTime.UtcNow:yyyyMMddHHmmssfff}-{paymentWalletRequestDto.UserId}";
+                var orderId = $"{DateTime.UtcNow:yyyyMMddHHmmssfff}-{maintenance.MaintenanceId}";
                 var payment = new Payment
                 {
                     PaymentMethod = "Wallet",
@@ -368,7 +395,7 @@ namespace Services
                 user.Balance -= paymentWalletRequestDto.Amount;
                 await _userRepository.UpdateProfile(user);
 
-                maintenance.Status = MaintenanceStatus.HoanThanh;
+                maintenance.Status = MaintenanceStatus.DangThucHien;
                 await _maintenanceRepository.UpdateMaintenanceAsync(maintenance.MaintenanceId, maintenance);
 
                 return new ServiceResult<bool>

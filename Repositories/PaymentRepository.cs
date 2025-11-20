@@ -13,6 +13,15 @@ namespace Repositories
             _context = context;
         }
 
+        public async Task<List<Payment>> GetPaymentsWithUserId(int userId)
+        {
+            return await _context.Payments
+                                 .Include(p => p.Transactions)
+                                 .OrderByDescending(p => p.CreatedAt)
+                                 .Where(p => p.UserId == userId)
+                                 .ToListAsync();
+        }
+
         public IQueryable<Payment> GetAllPaymentQuery()
         {
             return _context.Payments
