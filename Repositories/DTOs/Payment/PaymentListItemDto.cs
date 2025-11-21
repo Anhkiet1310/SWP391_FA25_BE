@@ -15,5 +15,8 @@ namespace Repositories.DTOs.Payment
         public string? Currency { get; set; }
         public string? Description { get; set; }
         public DateTime? CreatedAt { get; set; }
+
+        // Kiệt Thêm MaintenanceId
+        public int? MaintenanceId { get; set; }
     }
 }
