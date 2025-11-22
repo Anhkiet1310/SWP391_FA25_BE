@@ -42,7 +42,7 @@ namespace Services
                 CarId = dto.CarId,
                 MaintenanceType = dto.MaintenanceType,
                 MaintenanceDay = dto.MaintenanceDay,
-                Status = MaintenanceStatus.DaLenLich,
+                Status = (MaintenanceStatus)dto.Status,
                 Description = dto.Description,
                 Price = dto.Price,
                 CreatedAt = DateTime.UtcNow
