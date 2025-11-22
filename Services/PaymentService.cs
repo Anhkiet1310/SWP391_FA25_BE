@@ -65,48 +65,70 @@ namespace Services
             };
         }
 
-
-        //kiệt added maintenanceid
         public async Task<List<PaymentListItemDto>> GetPaymentsWithUserId(int userId)
         {
-            var exchangeRate = await GetUsdToVndRate();
+            //var exchangeRate = await GetUsdToVndRate();
             var payments = await _paymentRepository.GetPaymentsWithUserId(userId);
-            if (payments == null || !payments.Any()) return new List<PaymentListItemDto>();
 
-            var carUser = await _carUserRepository.GetCarUserById(payments.First().Transactions.First().CarUserId);
-            var car = await _carRepository.GetByIdAsync(carUser.CarId);
+            if (payments == null || !payments.Any())
+                return new List<PaymentListItemDto>();
 
-            var maintenance = await _maintenanceRepository.GetMaintenanceByCarId(car.CarId);
+            var result = new List<PaymentListItemDto>();
 
-            var result = payments.Select(p => new PaymentListItemDto
+            foreach (var payment in payments)
             {
-                PaymentId = p.PaymentId,
-                CarName = car.CarName,
-                PlateNumber = car.PlateNumber,
-                OrderId = p.OrderId,
-                Amount = p.Amount,
-                Currency = p.Currency,
-                AmountVnd = p.Amount * exchangeRate,
-                Description = p.Description,
-                PaymentMethod = p.PaymentMethod,
-                Status = p.Status.ToString(),
-                CreatedAt = p.CreatedAt,
+                var transaction = payment.Transactions.FirstOrDefault();
 
-                // ✅ Thêm MaintenanceId
-                MaintenanceId = maintenance?.MaintenanceId
-            }).ToList();
+                Car car = null;
+                Maintenance maintenance = null;
+
+                if (transaction?.CarUserId != null)
+                {
+                    var carUser = await _carUserRepository.GetCarUserById(transaction.CarUserId);
+
+                    if (carUser != null)
+                    {
+                        car = await _carRepository.GetByIdAsync(carUser.CarId);
+
+                        if (car != null)
+                        {
+                            maintenance = await _maintenanceRepository.GetMaintenanceByCarId(car.CarId);
+                        }
+                    }
+                }
+
+                result.Add(new PaymentListItemDto
+                {
+                    PaymentId = payment.PaymentId,
+                    CarName = car?.CarName ?? "",
+                    PlateNumber = car?.PlateNumber ?? "",
+                    OrderId = payment.OrderId,
+                    Amount = payment.Amount,
+                    Currency = payment.Currency,
+                    //AmountVnd = payment.Amount * exchangeRate,
+                    Description = payment.Description,
+                    PaymentMethod = payment.PaymentMethod,
+                    Status = payment.Status.ToString(),
+                    CreatedAt = payment.CreatedAt,
+                    MaintenanceId = maintenance?.MaintenanceId
+                });
+            }
 
             return result;
         }
 
 
-
+        ////kiệt added maintenanceid
         //public async Task<List<PaymentListItemDto>> GetPaymentsWithUserId(int userId)
         //{
         //    var exchangeRate = await GetUsdToVndRate();
         //    var payments = await _paymentRepository.GetPaymentsWithUserId(userId);
+        //    if (payments == null || !payments.Any()) return new List<PaymentListItemDto>();
+
         //    var carUser = await _carUserRepository.GetCarUserById(payments.First().Transactions.First().CarUserId);
         //    var car = await _carRepository.GetByIdAsync(carUser.CarId);
+
+        //    var maintenance = await _maintenanceRepository.GetMaintenanceByCarId(car.CarId);
 
         //    var result = payments.Select(p => new PaymentListItemDto
         //    {
@@ -121,6 +143,9 @@ namespace Services
         //        PaymentMethod = p.PaymentMethod,
         //        Status = p.Status.ToString(),
         //        CreatedAt = p.CreatedAt,
+
+        //        // ✅ Thêm MaintenanceId
+        //        MaintenanceId = maintenance?.MaintenanceId
         //    }).ToList();
 
         //    return result;
@@ -128,10 +153,8 @@ namespace Services
 
         public async Task<List<PaymentListItemDto>> GetAllPayment()
         {
-            var exchangeRate = await GetUsdToVndRate();
+            //var exchangeRate = await GetUsdToVndRate();
             var query = _paymentRepository.GetAllPaymentQuery();
-            //var payments = await query.ProjectTo<PaymentListItemDto>(_mapper.ConfigurationProvider)
-            //                          .ToListAsync();
             var payments = await query.ToListAsync();
 
             var transaction = await _transactionRepository.GetTransactionByOrderId(payments.First().OrderId);
@@ -146,7 +169,7 @@ namespace Services
                 OrderId = p.OrderId,
                 Amount = p.Amount,
                 Currency = p.Currency,
-                AmountVnd = p.Amount * exchangeRate,
+                //AmountVnd = p.Amount * exchangeRate,
                 Description = p.Description,
                 PaymentMethod = p.PaymentMethod,
                 Status = p.Status.ToString(),
@@ -154,15 +177,6 @@ namespace Services
             }).ToList();
 
             return result;
-
-            //foreach (var payment in payments)
-            //{
-            //    if (payment.Currency == "USD")
-            //    {
-            //        payment.AmountVnd = payment.Amount * exchangeRate;
-            //    }
-            //}
-            //return payments;
         }
 
         public async Task<ServiceResult<PaymentResponseDto>> CreatePayment(PaymentRequestDto paymentRequest)
