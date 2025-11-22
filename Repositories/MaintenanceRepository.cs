@@ -21,7 +21,7 @@ namespace Repositories
         public async Task<Maintenance> GetMaintenanceByCarId(int carId)
         {
             return await _context.Maintenances
-                .Where(m => m.CarId == carId && m.Status == 0)
+                .Where(m => m.CarId == carId)
                 .OrderByDescending(m => m.MaintenanceDay)
                 .FirstOrDefaultAsync();
         }
