@@ -78,6 +78,7 @@ namespace Services
             foreach (var payment in payments)
             {
                 var transaction = payment.Transactions.FirstOrDefault();
+                int? maintainId = null;
 
                 Car car = null;
                 Maintenance maintenance = null;
@@ -88,12 +89,8 @@ namespace Services
 
                     if (carUser != null)
                     {
-                        car = await _carRepository.GetByIdAsync(carUser.CarId);
-
-                        if (car != null)
-                        {
-                            maintenance = await _maintenanceRepository.GetMaintenanceByCarId(car.CarId);
-                        }
+                        var o = payment.OrderId.Split('-')[1];
+                        maintainId = int.Parse(o);
                     }
                 }
 
@@ -110,7 +107,7 @@ namespace Services
                     PaymentMethod = payment.PaymentMethod,
                     Status = payment.Status.ToString(),
                     CreatedAt = payment.CreatedAt,
-                    MaintenanceId = maintenance?.MaintenanceId
+                    MaintenanceId = maintainId
                 });
             }
 
