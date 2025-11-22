@@ -42,7 +42,7 @@ namespace Services
                 CarId = dto.CarId,
                 MaintenanceType = dto.MaintenanceType,
                 MaintenanceDay = dto.MaintenanceDay,
-                Status = (MaintenanceStatus)dto.Status,  // Chuyển int thành enum MaintenanceStatus
+                Status = MaintenanceStatus.DaLenLich,
                 Description = dto.Description,
                 Price = dto.Price,
                 CreatedAt = DateTime.UtcNow
