@@ -2,11 +2,13 @@
 using Services;
 using Repositories.Entities;
 using Repositories.DTOs.PercentOwnership;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SWP391.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class PercentOwnershipController : ControllerBase
     {
         private readonly PercentOwnershipService _percentOwnershipService;
