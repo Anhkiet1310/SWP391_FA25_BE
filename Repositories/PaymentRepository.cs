@@ -26,10 +26,6 @@ namespace Repositories
         {
             return _context.Payments
                            .Include(p => p.Transactions);
-            //.Include(p => p.CarUser)
-            //     .ThenInclude(cu => cu.User)
-            //.Include(p => p.CarUser)
-            //     .ThenInclude(cu => cu.Car);
         }
 
         public async Task<Payment> AddPayment(Payment payment)

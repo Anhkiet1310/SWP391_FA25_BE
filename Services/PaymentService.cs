@@ -40,31 +40,6 @@ namespace Services
             _httpClient = httpClient;
         }
 
-        public async Task<ServiceResult<PaymentResponseDto>> TestPayOSAsync()
-        {
-            long randomOrderId = BitConverter.ToInt64(Guid.NewGuid().ToByteArray(), 0);
-            var mockData = new PaymentPayOSRequestDto()
-            {
-                OrderId = 123456789,
-                Amount = 10000,
-                CancelUrl = "https://your-site.com/cancel",
-                Description = "Payment for order #123",
-                ReturnUrl = "https://your-site.com/success",
-            };
-            var paymentResponse = _paymentPayOSRepository.CreatePayment(mockData);
-            return new ServiceResult<PaymentResponseDto>
-            {
-                Success = true,
-                Message = "Payment created successfully",
-                Data = new PaymentResponseDto
-                {
-                    ApprovalUrl = paymentResponse.Result.ApprovalUrl,
-                    Status = paymentResponse.Result.Status,
-                    OrderId = paymentResponse.Result.OrderId
-                }
-            };
-        }
-
         public async Task<List<PaymentListItemDto>> GetPaymentsWithUserId(int userId)
         {
             //var exchangeRate = await GetUsdToVndRate();
@@ -81,7 +56,6 @@ namespace Services
                 int? maintainId = null;
 
                 Car car = null;
-                Maintenance maintenance = null;
 
                 if (transaction?.CarUserId != null)
                 {
@@ -91,6 +65,7 @@ namespace Services
                     {
                         var o = payment.OrderId.Split('-')[1];
                         maintainId = int.Parse(o);
+                        car = await _carRepository.GetByIdAsync(carUser.CarId);
                     }
                 }
 

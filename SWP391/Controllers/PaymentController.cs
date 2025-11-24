@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Repositories.DTOs.Payment;
 using Services;
 
@@ -6,6 +7,7 @@ namespace SWP391.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class PaymentController : ControllerBase
     {
         private readonly PaymentService _paymentService;
@@ -13,17 +15,6 @@ namespace SWP391.Controllers
         public PaymentController(PaymentService paymentService, IConfiguration config)
         {
             _paymentService = paymentService;
-        }
-
-        [HttpGet("/test")]
-        public IActionResult GetUrl()
-        {
-            var response = _paymentService.TestPayOSAsync().Result;
-            return Ok(new
-            {
-                success = true,
-                data = response.Data
-            });
         }
 
         [HttpGet()]
