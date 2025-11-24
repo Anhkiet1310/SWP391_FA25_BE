@@ -1,11 +1,13 @@
 ﻿using Repositories.DTOs.Maintenance;
 using Microsoft.AspNetCore.Mvc;
 using Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SWP391.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class MaintenanceController : ControllerBase
     {
         private readonly MaintenanceService _maintenanceService;

@@ -1,9 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Repositories.DBContext;
 using Repositories.DTOs.Car;
-using Repositories.Entities;
 using Services;
 
 
@@ -12,6 +9,7 @@ namespace SWP391.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class CarController : ControllerBase
     {
         private readonly CarService _carService;  // Inject trực tiếp CarService
